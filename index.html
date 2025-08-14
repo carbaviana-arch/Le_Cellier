@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Le Cellier - Lista de Compras</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="navbar">
+    <div class="navbar-inner">
+      <div class="title-large">Le Cellier</div>
+      <div class="subtitle">Lista de Compras</div>
+    </div>
+    <button id="btn-tema" class="tab-btn">🌙</button>
+  </div>
+
+  <form id="form-producto" class="grouped">
+    <input type="text" id="nombre" placeholder="Producto" required>
+    <input type="number" id="precio" placeholder="Precio (€)" step="0.01" required>
+    <input type="number" id="cantidad" placeholder="Cantidad" min="1" value="1" required>
+    <select id="categoria" required>
+      <option value="">Categoría</option>
+      <option>Vegetales</option>
+      <option>Frutas</option>
+      <option>Víveres</option>
+      <option>Carnes</option>
+      <option>Cuidado Personal</option>
+      <option>Limpieza</option>
+      <option>Bebidas</option>
+      <option>Aperitivos y Dulces</option>
+      <option>Panadería</option>
+    </select>
+    <button type="submit">Agregar</button>
+  </form>
+
+  <ul id="lista"></ul>
+
+  <div class="stats">
+    <div id="total-compra" class="stat">Total: €0.00</div>
+    <div id="presupuesto-restante" class="stat">Presupuesto: —</div>
+  </div>
+
+  <div class="tabbar">
+    <button id="btn-presupuesto" class="tab-btn">Presupuesto</button>
+    <button id="btn-resumen" class="tab-btn">Resumen</button>
+  </div>
+
+  <div id="modal-resumen" class="modal">
+    <div class="sheet">
+      <table id="tabla-resumen"></table>
+      <button id="cerrar-modal" class="close">Cerrar</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
