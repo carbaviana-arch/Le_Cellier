@@ -81,7 +81,6 @@ body.dark-mode .grouped { background: var(--card-dark); }
   transition: all 0.3s ease;
 }
 body.dark-mode #lista li { background: var(--card-dark); color: var(--text-dark); }
-
 #lista li.comprado { opacity:0.5; text-decoration: line-through; }
 
 /* Nombre y categoría */
@@ -96,9 +95,6 @@ body.dark-mode #lista li { background: var(--card-dark); color: var(--text-dark)
   margin-top:2px;
 }
 body.dark-mode #lista li span small { color: var(--secondary-dark); }
-
-/* Subtotal */
-#lista li span + span { font-weight:600; font-size:14px; }
 
 /* Botones de cantidad y eliminar */
 #lista li div button {
