@@ -1,150 +1,121 @@
 // ==================== VARIABLES ====================
-const form = document.getElementById("form");
+const form = document.getElementById("form-producto");
 const listaEl = document.getElementById("lista");
-const presupuestoInput = document.getElementById("presupuesto");
-const totalSpan = document.getElementById("total");
-const gastadoSpan = document.getElementById("gastado");
-const restanteSpan = document.getElementById("restante");
-const resumenModal = document.getElementById("resumenModal");
-const abrirResumenBtn = document.getElementById("abrirResumen");
-const cerrarResumenBtn = document.getElementById("cerrarResumen");
-const resumenTabla = document.getElementById("resumenTabla");
-const darkModeToggle = document.getElementById("modoOscuro");
+const totalEl = document.getElementById("total-compra");
+const presEl = document.getElementById("presupuesto-restante");
+const modal = document.getElementById("modal-resumen");
+const tabla = document.getElementById("tabla-resumen");
+const btnTema = document.getElementById("btn-tema");
+const btnPresupuesto = document.getElementById("btn-presupuesto");
+const btnResumen = document.getElementById("btn-resumen");
+const btnCerrar = document.getElementById("cerrar-modal");
 
+let lista = JSON.parse(localStorage.getItem("lista")) || [];
 let presupuesto = parseFloat(localStorage.getItem("presupuesto")) || 0;
-let compras = JSON.parse(localStorage.getItem("compras")) || [];
 
 // ==================== MODO OSCURO ====================
-if (localStorage.getItem("darkMode") === "true") {
-    document.body.classList.add("dark");
-}
-
-darkModeToggle.addEventListener("click", () => {
-    document.body.classList.toggle("dark");
-    localStorage.setItem("darkMode", document.body.classList.contains("dark"));
+if (localStorage.getItem("darkMode") === "true") document.body.classList.add("dark-mode");
+btnTema.addEventListener("click", () => {
+    document.body.classList.toggle("dark-mode");
+    btnTema.textContent = document.body.classList.contains("dark-mode") ? "☀️" : "🌙";
+    localStorage.setItem("darkMode", document.body.classList.contains("dark-mode"));
 });
 
-// ==================== GUARDAR EN LOCALSTORAGE ====================
-function guardarDatos() {
-    localStorage.setItem("compras", JSON.stringify(compras));
-    localStorage.setItem("presupuesto", presupuesto);
-}
+// ==================== GUARDAR DATOS ====================
+function guardarLista(){ localStorage.setItem("lista", JSON.stringify(lista)); }
+function guardarPres(){ localStorage.setItem("presupuesto", presupuesto); }
 
 // ==================== ESTADÍSTICAS ====================
-function actualizarStats() {
-    const total = compras.reduce((sum, item) => sum + item.precio * item.cantidad, 0);
-    const gastado = compras.filter(item => item.comprado).reduce((sum, item) => sum + item.precio * item.cantidad, 0);
-    const restante = presupuesto - gastado;
-
-    totalSpan.textContent = total.toFixed(2) + " €";
-    gastadoSpan.textContent = gastado.toFixed(2) + " €";
-    restanteSpan.textContent = restante.toFixed(2) + " €";
-
-    if (restante < 0) {
-        restanteSpan.classList.add("negative");
+function actualizarTotales(){
+    const total = lista.reduce((sum,it)=>sum+it.precio*it.cantidad,0);
+    totalEl.textContent = `Total: €${total.toFixed(2)}`;
+    if(presupuesto>0){
+        const rest = presupuesto-total;
+        presEl.textContent = `Presupuesto restante: €${rest.toFixed(2)}`;
+        presEl.classList.toggle("negative", rest<0);
     } else {
-        restanteSpan.classList.remove("negative");
+        presEl.textContent = "Presupuesto: —";
+        presEl.classList.remove("negative");
     }
 }
 
 // ==================== MOSTRAR LISTA ====================
-function mostrarLista() {
+function renderLista(){
     listaEl.innerHTML = "";
-
-    const ordenados = [...compras].sort((a, b) => a.comprado - b.comprado);
-
-    ordenados.forEach((item, index) => {
+    lista.sort((a,b)=>(a.comprado===b.comprado)?0:a.comprado?1:-1);
+    lista.forEach((item,i)=>{
         const li = document.createElement("li");
-        li.className = item.comprado ? "comprado" : "";
-
+        li.className = item.comprado?"comprado":"";
+        const subtotal = (item.precio*item.cantidad).toFixed(2);
         li.innerHTML = `
-            <span>
-                <strong>${item.nombre}</strong> (${item.categoria}) 
-                - ${item.cantidad} × ${item.precio.toFixed(2)} € = ${(item.precio*item.cantidad).toFixed(2)} €
-            </span>
+            <span>${item.nombre} (${item.categoria}) - €${item.precio.toFixed(2)} × ${item.cantidad} = €${subtotal}</span>
             <div>
-                <button class="comprar-btn">${item.comprado ? "✔" : "🛒"}</button>
+                <button class="comprar-btn">${item.comprado?"✔":"🛒"}</button>
                 <button class="eliminar-btn">🗑</button>
             </div>
         `;
-
-        li.querySelector(".comprar-btn").addEventListener("click", () => {
-            compras[index].comprado = !compras[index].comprado;
-            guardarDatos();
-            mostrarLista();
-            actualizarStats();
+        li.querySelector(".comprar-btn").addEventListener("click", ()=>{
+            lista[i].comprado = !lista[i].comprado;
+            guardarLista();
+            renderLista();
+            actualizarTotales();
         });
-
-        li.querySelector(".eliminar-btn").addEventListener("click", () => {
-            if (confirm(`¿Eliminar "${item.nombre}"?`)) {
-                compras.splice(index, 1);
-                guardarDatos();
-                mostrarLista();
-                actualizarStats();
+        li.querySelector(".eliminar-btn").addEventListener("click", ()=>{
+            if(confirm(`¿Eliminar "${item.nombre}"?`)){
+                lista.splice(i,1);
+                guardarLista();
+                renderLista();
+                actualizarTotales();
             }
         });
-
         listaEl.appendChild(li);
     });
+    actualizarTotales();
 }
 
-// ==================== AGREGAR ITEM ====================
-form.addEventListener("submit", e => {
+// ==================== AGREGAR PRODUCTO ====================
+form.addEventListener("submit", e=>{
     e.preventDefault();
-
     const nombre = document.getElementById("nombre").value.trim();
     const precio = parseFloat(document.getElementById("precio").value);
     const cantidad = parseInt(document.getElementById("cantidad").value);
     const categoria = document.getElementById("categoria").value;
-
-    if (!nombre || isNaN(precio) || isNaN(cantidad)) {
-        alert("Por favor completa todos los campos");
-        return;
-    }
-
-    compras.push({
-        nombre,
-        precio,
-        cantidad,
-        categoria,
-        comprado: false
-    });
-
-    guardarDatos();
-    form.reset();
-    mostrarLista();
-    actualizarStats();
+    if(!nombre || isNaN(precio) || isNaN(cantidad)) return;
+    lista.push({nombre, precio, cantidad, categoria, comprado:false});
+    guardarLista();
+    renderLista();
+    e.target.reset();
+    document.getElementById("cantidad").value = 1;
+    document.getElementById("nombre").focus();
 });
 
 // ==================== PRESUPUESTO ====================
-presupuestoInput.value = presupuesto > 0 ? presupuesto : "";
-presupuestoInput.addEventListener("change", () => {
-    presupuesto = parseFloat(presupuestoInput.value) || 0;
-    guardarDatos();
-    actualizarStats();
+btnPresupuesto.addEventListener("click", ()=>{
+    const nuevo = prompt("Introduce tu presupuesto (€):", presupuesto||"");
+    if(nuevo!==null && !isNaN(parseFloat(nuevo))){
+        presupuesto = parseFloat(nuevo);
+        guardarPres();
+        actualizarTotales();
+    }
 });
 
-// ==================== MODAL DE RESUMEN ====================
-abrirResumenBtn.addEventListener("click", () => {
-    resumenTabla.innerHTML = compras.map(item => `
-        <tr>
-            <td>${item.nombre}</td>
-            <td>${item.cantidad}</td>
-            <td>${item.precio.toFixed(2)} €</td>
-            <td>${(item.precio*item.cantidad).toFixed(2)} €</td>
-        </tr>
-    `).join("");
-    resumenModal.style.display = "flex";
+// ==================== RESUMEN ====================
+btnResumen.addEventListener("click", ()=>{
+    let total = 0;
+    const resumen = {};
+    lista.forEach(it=>{
+        resumen[it.categoria] = (resumen[it.categoria]||0)+it.precio*it.cantidad;
+        total += it.precio*it.cantidad;
+    });
+    tabla.innerHTML = Object.keys(resumen).map(cat=>
+        `<tr><td>${cat}</td><td style="text-align:right">€${resumen[cat].toFixed(2)}</td></tr>`
+    ).join('') + `<tr><td><strong>Total</strong></td><td style="text-align:right"><strong>€${total.toFixed(2)}</strong></td></tr>`;
+    modal.classList.add("show");
 });
 
-cerrarResumenBtn.addEventListener("click", () => {
-    resumenModal.style.display = "none";
-});
-
-resumenModal.addEventListener("click", e => {
-    if (e.target === resumenModal) resumenModal.style.display = "none";
-});
+btnCerrar.addEventListener("click", ()=> modal.classList.remove("show"));
+modal.addEventListener("click", e=>{ if(e.target===modal) modal.classList.remove("show"); });
 
 // ==================== INICIALIZACIÓN ====================
-mostrarLista();
-actualizarStats();
+renderLista();
+actualizarTotales();
