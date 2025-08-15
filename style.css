@@ -1,198 +1,125 @@
-:root {
-  --bg: #f2f2f7;
-  --card: #ffffff;
-  --text: #111111;
-  --secondary: #6b7280;
-  --tint: #0a84ff;
-  --danger: #ff3b30;
-  --shadow: 0 4px 12px rgba(0,0,0,0.08);
-  --radius: 12px;
+let lista = JSON.parse(localStorage.getItem('lista')) || [];
+let presupuesto = parseFloat(localStorage.getItem('presupuesto')) || 0;
 
-  --bg-dark: #121212;
-  --card-dark: #1e1e1e;
-  --text-dark: #e0e0e0;
-  --secondary-dark: #999999;
-  --tint-dark: #0a84ff;
-  --danger-dark: #ff6b6b;
-}
+const listaEl = document.getElementById('lista');
+const totalEl = document.getElementById('total-compra');
+const presEl = document.getElementById('presupuesto-restante');
+const modal = document.getElementById('modal-resumen');
+const tabla = document.getElementById('tabla-resumen');
+const btnTema = document.getElementById('btn-tema');
 
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html, body { height: 100%; margin:0; font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial; background: var(--bg); color: var(--text); transition: all 0.3s ease; }
-body.dark-mode { background: var(--bg-dark); color: var(--text-dark); }
+function guardarLista() { localStorage.setItem('lista', JSON.stringify(lista)); }
+function guardarPres() { localStorage.setItem('presupuesto', presupuesto); }
 
-/* Navbar */
-.navbar {
-  position: sticky;
-  top: 0;
-  backdrop-filter: blur(20px);
-  background: rgba(255,255,255,0.8);
-  border-bottom:1px solid rgba(0,0,0,0.06);
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:12px;
-  z-index:10;
-}
-.navbar-inner { display:flex; flex-direction:column; }
-.title-large { font-size:24px; font-weight:700; }
-.subtitle { font-size:13px; color:var(--secondary); }
-body.dark-mode .subtitle { color:var(--secondary-dark); }
+function renderLista() {
+  listaEl.innerHTML = '';
+  lista.sort((a,b)=>(a.comprado===b.comprado)?0:a.comprado?1:-1);
+  lista.forEach((item, i) => {
+    const li = document.createElement('li');
+    li.className = item.comprado ? 'comprado' : '';
 
-/* Formulario */
-.grouped {
-  display:grid;
-  grid-template-columns:1.4fr 1fr 0.8fr 1fr auto;
-  gap:6px;
-  padding:12px;
-  background: var(--card);
-  border-radius: var(--radius);
-  margin: 24px 12px 12px 12px; /* Más espacio arriba */
-  box-shadow: var(--shadow);
-}
-body.dark-mode .grouped { background: var(--card-dark); }
-.grouped input, .grouped select, .grouped button {
-  height:38px;
-  padding:0 10px;
-  border:1px solid rgba(0,0,0,0.1);
-  border-radius:8px;
-  font-size:14px;
-}
-.grouped button {
-  background: var(--tint);
-  color:#fff;
-  border:none;
-  font-weight:600;
-  cursor:pointer;
-}
-.grouped button:active { filter: brightness(0.9); }
+    // Nombre + categoría
+    const nombre = document.createElement('span');
+    const subtotal = (item.precio * item.cantidad).toFixed(2);
+    nombre.innerHTML = `${item.nombre} - €${item.precio.toFixed(2)} × ${item.cantidad} = €${subtotal}<small>${item.categoria}</small>`;
+    nombre.addEventListener('click', ()=> toggleComprado(i));
 
-/* Lista de productos */
-#lista { list-style:none; padding:12px; margin:0; }
-#lista li {
-  background: var(--card);
-  padding:10px;
-  border-radius: var(--radius);
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:8px;
-  margin-bottom:8px;
-  box-shadow: var(--shadow);
-  transition: all 0.3s ease;
-}
-body.dark-mode #lista li { background: var(--card-dark); color: var(--text-dark); }
-#lista li.comprado { opacity:0.5; text-decoration: line-through; }
+    // Controles de cantidad y eliminar
+    const divBtn = document.createElement('div');
+    const btnMenos = document.createElement('button');
+    btnMenos.textContent = '−';
+    btnMenos.onclick = e => { e.stopPropagation(); cambiarCantidad(i,-1); };
+    const btnMas = document.createElement('button');
+    btnMas.textContent = '+';
+    btnMas.onclick = e => { e.stopPropagation(); cambiarCantidad(i,1); };
+    const btnEliminar = document.createElement('button');
+    btnEliminar.textContent = '🗑';
+    btnEliminar.onclick = () => eliminar(i);
+    divBtn.append(btnMenos, btnMas, btnEliminar);
 
-/* Nombre y categoría */
-#lista li span {
-  display:flex;
-  flex-direction: column;
-  cursor:pointer;
-}
-#lista li span small {
-  font-size:12px;
-  color: var(--secondary);
-  margin-top:2px;
-}
-body.dark-mode #lista li span small { color: var(--secondary-dark); }
-
-/* Botones de cantidad y eliminar */
-#lista li div button {
-  margin-left:4px;
-  height:28px;
-  font-size:14px;
-  padding:0 10px;
-  border:none;
-  border-radius:6px;
-  background:#e9e9ee;
-  cursor:pointer;
-  transition: all 0.2s;
-}
-#lista li div button:hover { background:#ddd; }
-body.dark-mode #lista li div button { background:#333; color:var(--text-dark); }
-body.dark-mode #lista li div button:hover { background:#444; }
-
-/* Stats */
-.stats {
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-  margin:8px 12px;
-}
-.stat {
-  background: var(--card);
-  border-radius: var(--radius);
-  padding:10px;
-  text-align:center;
-  font-weight:bold;
-  box-shadow: var(--shadow);
-  transition: all 0.3s ease;
-}
-body.dark-mode .stat { background: var(--card-dark); color: var(--text-dark); }
-.negative { color: var(--danger); }
-body.dark-mode .negative { color: var(--danger-dark); }
-
-/* Tabbar */
-.tabbar {
-  position: sticky;
-  bottom:0;
-  display:flex;
-  justify-content:space-around;
-  background: rgba(255,255,255,0.85);
-  border-top:1px solid rgba(0,0,0,0.06);
-  padding:8px;
-}
-body.dark-mode .tabbar { background: rgba(30,30,30,0.85); border-top:1px solid #444; }
-.tab-btn {
-  border:none;
-  background:transparent;
-  color: var(--tint);
-  font-weight:600;
-  cursor:pointer;
+    li.append(nombre, divBtn);
+    listaEl.appendChild(li);
+  });
+  actualizarTotales();
 }
 
-/* Botón Resumen Compra */
-#btn-resumen {
-  background: var(--tint);
-  color:#fff;
-  border:none;
-  border-radius:8px;
-  padding:8px 12px;
-  font-weight:600;
-  cursor:pointer;
-  font-size:14px;
+function actualizarTotales() {
+  const total = lista.reduce((acc,it)=>acc+it.precio*it.cantidad,0);
+  totalEl.textContent = `Total: €${total.toFixed(2)}`;
+  if(presupuesto > 0) {
+    const rest = presupuesto - total;
+    presEl.textContent = `Presupuesto restante: €${rest.toFixed(2)}`;
+    presEl.classList.toggle('negative', rest<0);
+  } else {
+    presEl.textContent = 'Presupuesto: —';
+    presEl.classList.remove('negative');
+  }
 }
-#btn-resumen:active { filter: brightness(0.9); }
-body.dark-mode #btn-resumen { background: var(--tint-dark); color:#fff; }
 
-/* Modal */
-.modal {
-  position:fixed;
-  inset:0;
-  display:none;
-  justify-content:center;
-  align-items:flex-end;
-  background:rgba(0,0,0,0.25);
+function toggleComprado(i) {
+  lista[i].comprado = !lista[i].comprado;
+  guardarLista();
+  renderLista();
 }
-.sheet {
-  background: var(--card);
-  width:100%;
-  max-width:600px;
-  border-top-left-radius: var(--radius);
-  border-top-right-radius: var(--radius);
-  padding:16px;
+
+function cambiarCantidad(i, d) {
+  lista[i].cantidad = Math.max(1,(lista[i].cantidad||1)+d);
+  guardarLista();
+  renderLista();
 }
-body.dark-mode .sheet { background: var(--card-dark); color: var(--text-dark); }
-.sheet table { width:100%; border-collapse:collapse; }
-.sheet td { padding:6px 4px; }
-.close {
-  margin-top:10px;
-  width:100%;
-  padding:10px;
-  background:#e9e9ee;
-  border:none;
-  border-radius:8px;
-  font-weight:600;
-  cursor:pointer;
+
+function eliminar(i) {
+  if(confirm(`¿Eliminar "${lista[i].nombre}"?`)){
+    lista.splice(i,1);
+    guardarLista();
+    renderLista();
+  }
 }
-body.dark-mode .close { background:#333; color: var(--text-dark); }
+
+document.getElementById('form-producto').addEventListener('submit', e => {
+  e.preventDefault();
+  const nombre = document.getElementById('nombre').value.trim();
+  const precio = parseFloat(document.getElementById('precio').value);
+  const cantidad = parseInt(document.getElementById('cantidad').value);
+  const categoria = document.getElementById('categoria').value;
+  if(!nombre || isNaN(precio) || isNaN(cantidad)) return;
+
+  lista.push({ nombre, precio, cantidad, categoria, comprado:false });
+  guardarLista();
+  renderLista();
+  e.target.reset();
+  document.getElementById('cantidad').value = 1;
+  document.getElementById('nombre').focus();
+});
+
+document.getElementById('btn-resumen').addEventListener('click', () => {
+  const resumen = {};
+  let total = 0;
+  lista.forEach(it => {
+    resumen[it.categoria] = (resumen[it.categoria]||0) + it.precio*it.cantidad;
+    total += it.precio*it.cantidad;
+  });
+  tabla.innerHTML = Object.keys(resumen).map(cat =>
+    `<tr><td>${cat}</td><td style="text-align:right">€${resumen[cat].toFixed(2)}</td></tr>`
+  ).join('') + `<tr><td><strong>Total</strong></td><td style="text-align:right"><strong>€${total.toFixed(2)}</strong></td></tr>`;
+  modal.style.display = 'flex';
+});
+
+document.getElementById('cerrar-modal').addEventListener('click', () => modal.style.display='none');
+modal.addEventListener('click', e => { if(e.target===modal) modal.style.display='none'; });
+
+document.getElementById('btn-presupuesto').addEventListener('click', () => {
+  const nuevo = prompt('Introduce tu presupuesto (€):', presupuesto||'');
+  if(nuevo !== null && !isNaN(parseFloat(nuevo))){
+    presupuesto = parseFloat(nuevo);
+    guardarPres();
+    actualizarTotales();
+  }
+});
+
+btnTema.addEventListener('click', ()=>{
+  document.body.classList.toggle('dark-mode');
+  btnTema.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+});
+
+renderLista();
