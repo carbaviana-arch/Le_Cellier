@@ -1,34 +1,40 @@
 // ==================== VARIABLES ====================
 const form = document.getElementById("form");
-const lista = document.getElementById("lista");
+const listaEl = document.getElementById("lista");
 const presupuestoInput = document.getElementById("presupuesto");
 const totalSpan = document.getElementById("total");
-const restanteSpan = document.getElementById("restante");
 const gastadoSpan = document.getElementById("gastado");
+const restanteSpan = document.getElementById("restante");
 const resumenModal = document.getElementById("resumenModal");
 const abrirResumenBtn = document.getElementById("abrirResumen");
 const cerrarResumenBtn = document.getElementById("cerrarResumen");
 const resumenTabla = document.getElementById("resumenTabla");
+const darkModeToggle = document.getElementById("modoOscuro");
 
-let presupuesto = 0;
-let compras = [];
+let presupuesto = parseFloat(localStorage.getItem("presupuesto")) || 0;
+let compras = JSON.parse(localStorage.getItem("compras")) || [];
 
 // ==================== MODO OSCURO ====================
-const darkModeToggle = document.getElementById("modoOscuro");
 if (localStorage.getItem("darkMode") === "true") {
-    document.body.classList.add("dark-mode");
+    document.body.classList.add("dark");
 }
 
 darkModeToggle.addEventListener("click", () => {
-    document.body.classList.toggle("dark-mode");
-    localStorage.setItem("darkMode", document.body.classList.contains("dark-mode"));
+    document.body.classList.toggle("dark");
+    localStorage.setItem("darkMode", document.body.classList.contains("dark"));
 });
 
-// ==================== ACTUALIZAR ESTADÍSTICAS ====================
+// ==================== GUARDAR EN LOCALSTORAGE ====================
+function guardarDatos() {
+    localStorage.setItem("compras", JSON.stringify(compras));
+    localStorage.setItem("presupuesto", presupuesto);
+}
+
+// ==================== ESTADÍSTICAS ====================
 function actualizarStats() {
-    let total = compras.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-    let gastado = compras.filter(i => i.comprado).reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-    let restante = presupuesto - gastado;
+    const total = compras.reduce((sum, item) => sum + item.precio * item.cantidad, 0);
+    const gastado = compras.filter(item => item.comprado).reduce((sum, item) => sum + item.precio * item.cantidad, 0);
+    const restante = presupuesto - gastado;
 
     totalSpan.textContent = total.toFixed(2) + " €";
     gastadoSpan.textContent = gastado.toFixed(2) + " €";
@@ -43,43 +49,49 @@ function actualizarStats() {
 
 // ==================== MOSTRAR LISTA ====================
 function mostrarLista() {
-    lista.innerHTML = "";
+    listaEl.innerHTML = "";
 
-    // Orden: no comprados primero, luego comprados
     const ordenados = [...compras].sort((a, b) => a.comprado - b.comprado);
 
     ordenados.forEach((item, index) => {
         const li = document.createElement("li");
+        li.className = item.comprado ? "comprado" : "";
+
         li.innerHTML = `
-            <strong>${item.nombre}</strong> - ${item.categoria}  
-            <span>${item.cantidad} × ${item.precio.toFixed(2)} € = ${(item.precio * item.cantidad).toFixed(2)} €</span>
-            <button class="comprar-btn">${item.comprado ? "✔" : "🛒"}</button>
-            <button class="eliminar-btn">🗑</button>
+            <span>
+                <strong>${item.nombre}</strong> (${item.categoria}) 
+                - ${item.cantidad} × ${item.precio.toFixed(2)} € = ${(item.precio*item.cantidad).toFixed(2)} €
+            </span>
+            <div>
+                <button class="comprar-btn">${item.comprado ? "✔" : "🛒"}</button>
+                <button class="eliminar-btn">🗑</button>
+            </div>
         `;
 
-        if (item.comprado) li.classList.add("comprado");
-
-        // Botón comprar
         li.querySelector(".comprar-btn").addEventListener("click", () => {
             compras[index].comprado = !compras[index].comprado;
+            guardarDatos();
             mostrarLista();
             actualizarStats();
         });
 
-        // Botón eliminar
         li.querySelector(".eliminar-btn").addEventListener("click", () => {
-            compras.splice(index, 1);
-            mostrarLista();
-            actualizarStats();
+            if (confirm(`¿Eliminar "${item.nombre}"?`)) {
+                compras.splice(index, 1);
+                guardarDatos();
+                mostrarLista();
+                actualizarStats();
+            }
         });
 
-        lista.appendChild(li);
+        listaEl.appendChild(li);
     });
 }
 
 // ==================== AGREGAR ITEM ====================
 form.addEventListener("submit", e => {
     e.preventDefault();
+
     const nombre = document.getElementById("nombre").value.trim();
     const precio = parseFloat(document.getElementById("precio").value);
     const cantidad = parseInt(document.getElementById("cantidad").value);
@@ -98,14 +110,17 @@ form.addEventListener("submit", e => {
         comprado: false
     });
 
+    guardarDatos();
     form.reset();
     mostrarLista();
     actualizarStats();
 });
 
 // ==================== PRESUPUESTO ====================
+presupuestoInput.value = presupuesto > 0 ? presupuesto : "";
 presupuestoInput.addEventListener("change", () => {
     presupuesto = parseFloat(presupuestoInput.value) || 0;
+    guardarDatos();
     actualizarStats();
 });
 
@@ -116,7 +131,7 @@ abrirResumenBtn.addEventListener("click", () => {
             <td>${item.nombre}</td>
             <td>${item.cantidad}</td>
             <td>${item.precio.toFixed(2)} €</td>
-            <td>${(item.precio * item.cantidad).toFixed(2)} €</td>
+            <td>${(item.precio*item.cantidad).toFixed(2)} €</td>
         </tr>
     `).join("");
     resumenModal.style.display = "flex";
@@ -125,3 +140,11 @@ abrirResumenBtn.addEventListener("click", () => {
 cerrarResumenBtn.addEventListener("click", () => {
     resumenModal.style.display = "none";
 });
+
+resumenModal.addEventListener("click", e => {
+    if (e.target === resumenModal) resumenModal.style.display = "none";
+});
+
+// ==================== INICIALIZACIÓN ====================
+mostrarLista();
+actualizarStats();
