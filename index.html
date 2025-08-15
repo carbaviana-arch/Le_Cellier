@@ -8,7 +8,6 @@
 </head>
 <body>
 
-  <!-- Navbar -->
   <div class="navbar">
     <div class="navbar-inner">
       <div class="title-large">Le Cellier</div>
@@ -17,7 +16,6 @@
     <button id="btn-tema" class="tab-btn">🌙</button>
   </div>
 
-  <!-- Formulario -->
   <form id="form-producto" class="grouped">
     <input type="text" id="nombre" placeholder="Producto" required>
     <input type="number" id="precio" placeholder="Precio (€)" step="0.01" required>
@@ -37,22 +35,18 @@
     <button type="submit">Agregar</button>
   </form>
 
-  <!-- Lista de productos -->
   <ul id="lista"></ul>
 
-  <!-- Estadísticas -->
   <div class="stats">
     <div id="total-compra" class="stat">Total: €0.00</div>
     <div id="presupuesto-restante" class="stat">Presupuesto: —</div>
   </div>
 
-  <!-- Barra inferior -->
   <div class="tabbar">
     <button id="btn-presupuesto" class="tab-btn">Presupuesto</button>
-    <button id="btn-resumen">Resumen Compra</button>
+    <button id="btn-resumen" class="tab-btn summary-btn">Resumen Compra</button>
   </div>
 
-  <!-- Modal de resumen -->
   <div id="modal-resumen" class="modal">
     <div class="sheet">
       <table id="tabla-resumen"></table>
@@ -60,7 +54,6 @@
     </div>
   </div>
 
-  <!-- Script -->
   <script src="app.js"></script>
 </body>
 </html>
