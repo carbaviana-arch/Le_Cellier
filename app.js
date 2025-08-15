@@ -1,1 +1,80 @@
-let lista=JSON.parse(localStorage.getItem('lista'))||[]; let presupuesto=parseFloat(localStorage.getItem('presupuesto'))||0; const listaEl=document.getElementById('lista'); const totalEl=document.getElementById('total-compra'); const presEl=document.getElementById('presupuesto-restante'); const modal=document.getElementById('modal-resumen'); const tabla=document.getElementById('tabla-resumen'); const btnTema=document.getElementById('btn-tema'); function guardarLista(){localStorage.setItem('lista',JSON.stringify(lista));} function guardarPres(){localStorage.setItem('presupuesto',presupuesto);} function renderLista(){listaEl.innerHTML=''; lista.sort((a,b)=>(a.comprado===b.comprado)?0:a.comprado?1:-1); lista.forEach((item,i)=>{ const li=document.createElement('li'); li.className=item.comprado?'comprado':''; const nombre=document.createElement('span'); const subtotal=(item.precio*item.cantidad).toFixed(2); nombre.textContent=`${item.nombre} (${item.categoria}) - €${item.precio.toFixed(2)} × ${item.cantidad} = €${subtotal}`; nombre.addEventListener('click',()=>toggleComprado(i)); const btnMenos=document.createElement('button'); btnMenos.textContent='−'; btnMenos.onclick=(e)=>{e.stopPropagation();cambiarCantidad(i,-1);}; const cantidad=document.createElement('span'); cantidad.textContent=item.cantidad; const btnMas=document.createElement('button'); btnMas.textContent='+'; btnMas.onclick=(e)=>{e.stopPropagation();cambiarCantidad(i,1);}; const btnEliminar=document.createElement('button'); btnEliminar.textContent='🗑'; btnEliminar.onclick=()=>eliminar(i); li.append(nombre,btnMenos,cantidad,btnMas,btnEliminar); listaEl.appendChild(li);}); actualizarTotales();} function actualizarTotales(){const total=lista.reduce((acc,it)=>acc+it.precio*it.cantidad,0); totalEl.textContent=`Total: €${total.toFixed(2)}`; if(presupuesto>0){const rest=presupuesto-total; presEl.textContent=`Presupuesto restante: €${rest.toFixed(2)}`; presEl.classList.toggle('negative',rest<0);}else{presEl.textContent='Presupuesto: —'; presEl.classList.remove('negative');}} function toggleComprado(i){lista[i].comprado=!lista[i].comprado; guardarLista(); renderLista();} function cambiarCantidad(i,d){lista[i].cantidad=Math.max(1,(lista[i].cantidad||1)+d); guardarLista(); renderLista();} function eliminar(i){if(confirm(`¿Eliminar "${lista[i].nombre}"?`)){lista.splice(i,1); guardarLista(); renderLista();}} document.getElementById('form-producto').addEventListener('submit',(e)=>{e.preventDefault(); const nombre=document.getElementById('nombre').value.trim(); const precio=parseFloat(document.getElementById('precio').value); const cantidad=parseInt(document.getElementById('cantidad').value); const categoria=document.getElementById('categoria').value; if(!nombre||isNaN(precio)||isNaN(cantidad))return; lista.push({nombre,precio,cantidad,categoria,comprado:false}); guardarLista(); renderLista(); e.target.reset(); document.getElementById('cantidad').value=1; document.getElementById('nombre').focus();}); document.getElementById('btn-resumen').addEventListener('click',()=>{ const resumen={}; let total=0; lista.forEach(it=>{ resumen[it.categoria]=(resumen[it.categoria]||0)+it.precio*it.cantidad; total+=it.precio*it.cantidad; }); tabla.innerHTML=Object.keys(resumen).map(cat=>`<tr><td>${cat}</td><td style="text-align:right">€${resumen[cat].toFixed(2)}</td></tr>`).join('')+`<tr><td><strong>Total</strong></td><td style="text-align:right"><strong>€${total.toFixed(2)}</strong></td></tr>`; modal.style.display='flex';}); document.getElementById('cerrar-modal').addEventListener('click',()=>modal.style.display='none'); modal.addEventListener('click',(e)=>{if(e.target===modal)modal.style.display='none';}); document.getElementById('btn-presupuesto').addEventListener('click',()=>{ const nuevo=prompt('Introduce tu presupuesto (€):',presupuesto||''); if(nuevo!==null&&!isNaN(parseFloat(nuevo))){presupuesto=parseFloat(nuevo); guardarPres(); actualizarTotales();}}); btnTema.addEventListener('click',()=>{document.body.classList.toggle('dark-mode'); btnTema.textContent=document.body.classList.contains('dark-mode')?'☀️':'🌙';}); renderLista();
+// Modo oscuro
+const toggleDark = document.getElementById("toggle-dark");
+if (localStorage.getItem("dark-mode") === "true") {
+    document.body.classList.add("dark-mode");
+}
+toggleDark.addEventListener("click", () => {
+    document.body.classList.toggle("dark-mode");
+    localStorage.setItem("dark-mode", document.body.classList.contains("dark-mode"));
+});
+
+// Elementos
+const lista = document.getElementById("lista");
+const productoInput = document.getElementById("producto");
+const precioInput = document.getElementById("precio");
+const cantidadInput = document.getElementById("cantidad");
+const categoriaInput = document.getElementById("categoria");
+const agregarBtn = document.getElementById("agregar");
+
+const totalEl = document.getElementById("total");
+const restanteEl = document.getElementById("restante");
+
+let items = [];
+
+// Agregar producto
+agregarBtn.addEventListener("click", () => {
+    const producto = productoInput.value.trim();
+    const precio = parseFloat(precioInput.value) || 0;
+    const cantidad = parseInt(cantidadInput.value) || 1;
+    const categoria = categoriaInput.value;
+
+    if (!producto) return;
+
+    const subtotal = precio * cantidad;
+    items.push({ producto, precio, cantidad, subtotal, categoria, comprado: false });
+    renderLista();
+
+    productoInput.value = "";
+    precioInput.value = "";
+    cantidadInput.value = 1;
+});
+
+// Renderizar lista
+function renderLista() {
+    lista.innerHTML = "";
+    let total = 0;
+    let gastado = 0;
+
+    items.forEach((item, index) => {
+        if (!item.comprado) total += item.subtotal;
+        if (item.comprado) gastado += item.subtotal;
+
+        const li = document.createElement("li");
+        if (item.comprado) li.classList.add("comprado");
+
+        li.innerHTML = `
+            <span>${item.producto} (${item.categoria}) - ${item.cantidad} x ${item.precio.toFixed(2)}€</span>
+            <strong>${item.subtotal.toFixed(2)}€</strong>
+            <button onclick="toggleComprado(${index})">✅</button>
+            <button onclick="eliminarItem(${index})">🗑️</button>
+        `;
+
+        lista.appendChild(li);
+    });
+
+    totalEl.textContent = total.toFixed(2);
+    restanteEl.textContent = (total - gastado).toFixed(2);
+}
+
+// Marcar como comprado
+function toggleComprado(index) {
+    items[index].comprado = !items[index].comprado;
+    items.sort((a, b) => a.comprado - b.comprado);
+    renderLista();
+}
+
+// Eliminar item
+function eliminarItem(index) {
+    items.splice(index, 1);
+    renderLista();
+}
