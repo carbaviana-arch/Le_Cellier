@@ -1,59 +1,50 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Le Cellier - Lista de Compras</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Compras</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <span class="title-large">Lista de Compras</span>
+            <span class="subtitle">Organiza tus compras fácilmente</span>
+        </div>
+        <button id="toggle-dark" title="Cambiar tema">🌓</button>
+    </nav>
 
-  <div class="navbar">
-    <div class="navbar-inner">
-      <div class="title-large">Le Cellier</div>
-      <div class="subtitle">Lista de Compras</div>
+    <!-- Formulario -->
+    <div class="grouped">
+        <input type="text" id="producto" placeholder="Producto">
+        <input type="number" id="precio" placeholder="Precio" step="0.01" min="0">
+        <input type="number" id="cantidad" placeholder="Cantidad" min="1" value="1">
+        <select id="categoria">
+            <option value="General">General</option>
+            <option value="Vegetales">Vegetales</option>
+            <option value="Frutas">Frutas</option>
+            <option value="Viveres">Víveres</option>
+            <option value="Carnes">Carnes</option>
+            <option value="Cuidado Personal">Cuidado Personal</option>
+            <option value="Limpieza">Limpieza</option>
+            <option value="Bebidas">Bebidas</option>
+            <option value="Aperitivos">Aperitivos</option>
+            <option value="Panadería">Panadería</option>
+        </select>
+        <button id="agregar">➕</button>
     </div>
-    <button id="btn-tema" class="tab-btn">🌙</button>
-  </div>
 
-  <form id="form-producto" class="grouped">
-    <input type="text" id="nombre" placeholder="Producto" required>
-    <input type="number" id="precio" placeholder="Precio (€)" step="0.01" required>
-    <input type="number" id="cantidad" placeholder="Cantidad" min="1" value="1" required>
-    <select id="categoria" required>
-      <option value="">Categoría</option>
-      <option>Vegetales</option>
-      <option>Frutas</option>
-      <option>Víveres</option>
-      <option>Carnes</option>
-      <option>Cuidado Personal</option>
-      <option>Limpieza</option>
-      <option>Bebidas</option>
-      <option>Aperitivos y Dulces</option>
-      <option>Panadería</option>
-    </select>
-    <button type="submit">Agregar</button>
-  </form>
+    <!-- Lista -->
+    <ul id="lista"></ul>
 
-  <ul id="lista"></ul>
-
-  <div class="stats">
-    <div id="total-compra" class="stat">Total: €0.00</div>
-    <div id="presupuesto-restante" class="stat">Presupuesto: —</div>
-  </div>
-
-  <div class="tabbar">
-    <button id="btn-presupuesto" class="tab-btn">Presupuesto</button>
-    <button id="btn-resumen" class="tab-btn">Resumen</button>
-  </div>
-
-  <div id="modal-resumen" class="modal">
-    <div class="sheet">
-      <table id="tabla-resumen"></table>
-      <button id="cerrar-modal" class="close">Cerrar</button>
+    <!-- Stats -->
+    <div class="stats">
+        <div class="stat">Total: <span id="total">0.00</span> €</div>
+        <div class="stat">Restante: <span id="restante">0.00</span> €</div>
     </div>
-  </div>
 
-  <script src="app.js"></script>
+    <!-- JS -->
+    <script src="app.js"></script>
 </body>
 </html>
