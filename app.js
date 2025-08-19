@@ -1,3 +1,25 @@
+{
+  "name": "Le Cellier - Lista de Compras",
+  "short_name": "Le Cellier",
+  "description": "Gestor de lista de compras moderno, con presupuesto y resumen por categoría.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f2f2f7",
+  "theme_color": "#0a84ff",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
 let lista = JSON.parse(localStorage.getItem('lista')) || [];
 let presupuesto = parseFloat(localStorage.getItem('presupuesto')) || 0;
 
