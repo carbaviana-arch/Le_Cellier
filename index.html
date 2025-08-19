@@ -5,16 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Le Cellier - Lista de Compras</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
 </head>
 <body>
 
-  <div class="navbar">
+  <header class="navbar">
     <div class="navbar-inner">
+      <div class="logo">
+        <svg width="40" height="40" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+          <rect width="120" height="120" rx="26" fill="url(#grad)" />
+          <path d="M35 40h50l-6 30H41l-6-30z" fill="white"/>
+          <circle cx="45" cy="80" r="6" fill="white"/>
+          <circle cx="75" cy="80" r="6" fill="white"/>
+          <defs>
+            <linearGradient id="grad" x1="0" y1="0" x2="120" y2="120" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#0a84ff"/>
+              <stop offset="100%" stop-color="#30d158"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
       <div class="title-large">Le Cellier</div>
       <div class="subtitle">Lista de Compras</div>
     </div>
     <button id="btn-tema" class="tab-btn">🌙</button>
-  </div>
+  </header>
 
   <form id="form-producto" class="grouped">
     <input type="text" id="nombre" placeholder="Producto" required>
@@ -44,7 +59,7 @@
 
   <div class="tabbar">
     <button id="btn-presupuesto" class="tab-btn">Presupuesto</button>
-    <button id="btn-resumen" class="tab-btn resumen-btn">Resumen Compra</button>
+    <button id="btn-resumen" class="tab-btn btn-resumen">Resumen Compra</button>
   </div>
 
   <div id="modal-resumen" class="modal">
