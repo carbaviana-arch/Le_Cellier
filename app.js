@@ -8,6 +8,7 @@ const totalEl = document.getElementById('total-compra');
 const presEl = document.getElementById('presupuesto-restante');
 const modal = document.getElementById('modal-resumen');
 const tabla = document.getElementById('tabla-resumen');
+
 // ========================
 //   RENDERIZAR LISTA
 // ========================
@@ -20,17 +21,28 @@ function renderLista() {
       <div class="categoria">${item.categoria}</div>
       <div class="subtotal">Subtotal: €${(item.precio * item.cantidad).toFixed(2)}</div>
     `;
+
+    // Aplicar estado comprado si existe
+    if(item.estado === 'comprado') {
+      li.classList.add('comprado');
+    }
+
     // Marcar como comprado al tocar
     li.addEventListener('click', () => {
       li.classList.toggle('comprado');
-      lista.push(lista.splice(index, 1)[0]); // mover al final
+      // Actualizar estado en el objeto
+      item.estado = li.classList.contains('comprado') ? 'comprado' : 'pendiente';
+      // Mover al final
+      lista.push(lista.splice(index, 1)[0]);
       guardarLista();
       renderLista();
     });
+
     listaEl.appendChild(li);
   });
   actualizarTotales();
 }
+
 // ========================
 //   TOTALES Y PRESUPUESTO
 // ========================
@@ -45,6 +57,7 @@ function actualizarTotales() {
     presEl.textContent = 'Presupuesto: —';
   }
 }
+
 // ========================
 //   GUARDAR LISTA
 // ========================
@@ -52,6 +65,7 @@ function guardarLista() {
   localStorage.setItem('lista', JSON.stringify(lista));
   localStorage.setItem('presupuesto', presupuesto);
 }
+
 // ========================
 //   FORMULARIO
 // ========================
@@ -62,12 +76,13 @@ document.getElementById('form-producto').addEventListener('submit', e => {
   const cantidad = parseInt(document.getElementById('cantidad').value);
   const categoria = document.getElementById('categoria').value;
   if (!nombre || isNaN(precio) || isNaN(cantidad) || !categoria) return;
-  lista.push({ nombre, precio, cantidad, categoria });
+  lista.push({ nombre, precio, cantidad, categoria, estado: 'pendiente' });
   guardarLista();
   renderLista();
   e.target.reset();
   document.getElementById('cantidad').value = 1;
 });
+
 // ========================
 //   PRESUPUESTO
 // ========================
@@ -79,6 +94,7 @@ document.getElementById('btn-presupuesto').addEventListener('click', () => {
     actualizarTotales();
   }
 });
+
 // ========================
 //   MODAL RESUMEN
 // ========================
@@ -101,10 +117,12 @@ document.getElementById('btn-resumen').addEventListener('click', () => {
 document.getElementById('cerrar-modal').addEventListener('click', () => {
   modal.style.display = 'none';
 });
+
 // ========================
 //   INICIALIZAR APP
 // ========================
 renderLista();
+
 // ========================
 //   SWITCH MODO OSCURO
 // ========================
@@ -123,4 +141,3 @@ toggleDark.addEventListener('change', () => {
     localStorage.setItem('theme', 'light');
   }
 });
-
