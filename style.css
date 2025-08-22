@@ -126,7 +126,13 @@ body.dark-mode #lista li {
 body.dark-mode #lista li .categoria { color: var(--secondary-dark); }
 #lista li .subtotal { font-size: 14px; font-weight: 400; color: var(--text); align-self: flex-end; }
 body.dark-mode #lista li .subtotal { color: var(--text-dark); }
-#lista li.comprado { opacity: 0.5; text-decoration: line-through; }
+/* Estado de artículo comprado */
+#lista li.comprado {
+  opacity: 0.5;
+  text-decoration: line-through;
+  background-color: #e0e0e0;
+  transition: all 0.3s ease;
+}
 /* Botones cantidad */
 #lista .btn-cant {
   background: #e9e9ee;
@@ -266,4 +272,3 @@ input:checked + .slider {
 input:checked + .slider:before {
   transform: translateX(22px);
 }
-
