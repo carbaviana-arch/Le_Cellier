@@ -17,6 +17,7 @@ function renderLista() {
   listaEl.innerHTML = '';
   lista.forEach((item, index) => {
     const li = document.createElement('li');
+    li.classList.add('item');
 
     li.innerHTML = `
       <div class="nombre">${item.nombre} (x${item.cantidad})</div>
@@ -24,12 +25,35 @@ function renderLista() {
       <div class="subtotal">Subtotal: €${(item.precio * item.cantidad).toFixed(2)}</div>
     `;
 
-    // Marcar como comprado al tocar
+    // Marcar como comprado con animación
     li.addEventListener('click', () => {
       li.classList.toggle('comprado');
-      lista.push(lista.splice(index, 1)[0]); // mover al final
-      guardarLista();
-      renderLista();
+      li.style.transition = "opacity 0.4s ease, transform 0.4s ease";
+      li.style.opacity = "0.5";
+      li.style.transform = "translateY(10px)";
+
+      setTimeout(() => {
+        lista.push(lista.splice(index, 1)[0]); // mover al final
+        guardarLista();
+        renderLista();
+      }, 400);
+    });
+
+    // Swipe para eliminar
+    let startX = 0;
+    li.addEventListener("touchstart", e => {
+      startX = e.touches[0].clientX;
+    });
+    li.addEventListener("touchend", e => {
+      let endX = e.changedTouches[0].clientX;
+      if (startX - endX > 80) { // deslizar a la izquierda
+        li.classList.add("borrando");
+        setTimeout(() => {
+          lista.splice(index, 1);
+          guardarLista();
+          renderLista();
+        }, 300);
+      }
     });
 
     listaEl.appendChild(li);
