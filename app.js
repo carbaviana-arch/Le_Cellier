@@ -1,108 +1,147 @@
-// app.js - versión robusta para navegación y debug
-document.addEventListener('DOMContentLoaded', () => {
-  console.log('[app] DOMContentLoaded - iniciando app');
+// APP DE VINOS - versión editable + botones + localStorage
+document.addEventListener("DOMContentLoaded", () => {
 
-  // LISTA INICIAL DE VINOS (puedes mantener la tuya)
+  // ------------------------------------------------------
+  // LISTA INICIAL DE VINOS
   const vinos = {
-    tinto: [ /* ... */ ],
-    blanco: [ /* ... */ ],
-    espumoso: [ /* ... */ ],
-    dulce: [ /* ... */ ]
+    tinto: ["Luis Cañas", "Sierra Cantabria", "Voche", "RODA", "Ricardo Dumas",
+      "Pago de los Capellanes Joven", "Silvanus", "Viña Sastre Joven",
+      "Pago de Carraovejas", "Tomás Postigo 5 Año", "Abadía Retuerta",
+      "Summa Varietalis", "Palacio Quemado", "Habla del Silencio",
+      "Tagonius", "El Regajal", "Ánima del Priorat", "Bobos",
+      "Corral de Campanas", "Termes", "Cuatro Pasos Black"
+    ],
+    blanco: ["Emina Verdejo", "El Perro Verde", "Belondrade y Lurton",
+      "Pentecostes Albariño", "Pazo Baión", "Polvorete", "A Coroa",
+      "O Luar do Sil", "Belondrade Quinta Apolonia",
+      "Finca Río Negro Gewürztraminer", "Barbazul", "Árabe", "Emina Rosé"
+    ],
+    espumoso: ["Babot", "Gramona Imperial", "Tantum Ergo Rosé",
+      "Mumm Cordon Rouge Brut", "Bollinger Special Cuvée"
+    ]
   };
 
-  // (Si quieres mantener la lista completa, pégala aquí.
-  // Para mantener este snippet corto, asumo que ya la tienes
-  // en tu archivo; si no, pega la lista completa como antes.)
-  // ------------------------------------------------------
-
-  // Inventario dinámico
   const inventario = [];
 
-  // Selección DOM
-  const navButtons = document.querySelectorAll('nav button');
-  const pages = document.querySelectorAll('.page');
-  const wineList = document.getElementById('wine-list');
-  const addForm = document.getElementById('add-wine-form');
-  const searchInput = document.getElementById('search-box');
-  const searchResults = document.getElementById('search-results');
+  const buttons = document.querySelectorAll("nav button");
+  const pages = document.querySelectorAll(".page");
+  const wineList = document.getElementById("wine-list");
+  const addForm = document.getElementById("add-wine-form");
+  const searchInput = document.getElementById("search-box");
+  const searchResults = document.getElementById("search-results");
 
-  // DEBUG: informa si los elementos existen
-  console.log('[app] botones nav encontrados:', navButtons.length);
-  console.log('[app] páginas encontradas:', pages.length);
-  console.log('[app] wineList existe?', !!wineList);
-  console.log('[app] addForm existe?', !!addForm);
-  console.log('[app] searchBox existe?', !!searchInput);
-
-  // Navegación: delegación segura
-  if (navButtons.length > 0 && pages.length > 0) {
-    navButtons.forEach(btn => {
-      btn.addEventListener('click', (ev) => {
-        const target = btn.dataset.page;
-        console.log('[app] clic en nav ->', target);
-        if (!target) return;
-
-        pages.forEach(p => p.classList.remove('active'));
-        const pageEl = document.getElementById(target);
-        if (pageEl) pageEl.classList.add('active');
-      });
+  // ------------------------------------------------------
+  // Navegación entre secciones
+  buttons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const page = btn.dataset.page;
+      pages.forEach(p => p.classList.remove("active"));
+      document.getElementById(page).classList.add("active");
     });
-  } else {
-    console.warn('[app] No se ha inicializado la navegación (botones o páginas no encontrados).');
-  }
+  });
 
-  // Render inventario
+  // ------------------------------------------------------
+  // Render inventario con cantidad editable + botones
   function renderInventario() {
-    if (!wineList) return;
-    wineList.innerHTML = '';
-    inventario.forEach(item => {
-      const div = document.createElement('div');
-      div.className = 'wine-item';
-      div.innerHTML = `<strong>${item.nombre}</strong> — ${item.categoria.toUpperCase()}<br>Cantidad: ${item.cantidad}`;
+    wineList.innerHTML = "";
+
+    inventario.forEach((item, index) => {
+      const div = document.createElement("div");
+      div.classList.add("wine-item");
+
+      div.innerHTML = `
+        <strong>${item.nombre}</strong> — ${item.categoria.toUpperCase()}<br>
+        <div class="qty-wrapper" data-id="${index}">
+          <button class="qty-btn minus">−</button>
+          <input type="number" class="qty-input" value="${item.cantidad}" min="0">
+          <button class="qty-btn plus">+</button>
+        </div>
+      `;
+
       wineList.appendChild(div);
     });
   }
 
-  // Agregar vino (si existe el formulario)
-  if (addForm) {
-    addForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const nombre = (document.getElementById('wine-name') || {}).value || '';
-      const categoria = (document.getElementById('wine-category') || {}).value || 'tinto';
-      const cantidadRaw = (document.getElementById('wine-count') || {}).value;
-      const cantidad = parseInt(cantidadRaw, 10);
+  // ------------------------------------------------------
+  // Manejo de botones + y − y cambios en input
+  wineList.addEventListener("click", (e) => {
+    if (e.target.classList.contains("plus") || e.target.classList.contains("minus")) {
+      const wrapper = e.target.closest(".qty-wrapper");
+      const input = wrapper.querySelector(".qty-input");
+      const index = wrapper.dataset.id;
+      let cantidad = parseInt(input.value) || 0;
 
-      if (!nombre || isNaN(cantidad)) {
-        alert('Completa correctamente el nombre y la cantidad.');
-        return;
-      }
+      if (e.target.classList.contains("plus")) cantidad++;
+      else cantidad = Math.max(0, cantidad - 1);
 
-      inventario.push({ nombre, categoria, cantidad });
-      renderInventario();
-      addForm.reset();
-      console.log('[app] Vino agregado:', nombre, categoria, cantidad);
-    });
-  }
+      input.value = cantidad;
+      inventario[index].cantidad = cantidad;
+      guardarLocalStorage();
+    }
+  });
 
-  // Búsqueda básica (si existe caja)
-  if (searchInput && searchResults) {
-    searchInput.addEventListener('input', () => {
-      const q = searchInput.value.trim().toLowerCase();
-      const allWines = Object.keys(vinos).flatMap(cat => vinos[cat].map(n => ({ nombre: n, categoria: cat })));
-      const filtered = allWines.filter(w => w.nombre.toLowerCase().includes(q));
-      searchResults.innerHTML = filtered.map(w => `<div class="search-item">${w.nombre} — ${w.categoria}</div>`).join('') || '<div class="search-item">No hay resultados</div>';
-    });
-  }
+  wineList.addEventListener("input", (e) => {
+    if (e.target.classList.contains("qty-input")) {
+      const wrapper = e.target.closest(".qty-wrapper");
+      const index = wrapper.dataset.id;
+      let cantidad = parseInt(e.target.value) || 0;
+      e.target.value = cantidad;
+      inventario[index].cantidad = cantidad;
+      guardarLocalStorage();
+    }
+  });
 
-  // Inicializar inventario con cantidad 0 (si no quieres esto, quita la función)
-  function initInventario() {
-    Object.keys(vinos).forEach(cat => {
-      vinos[cat].forEach(nombre => {
-        inventario.push({ nombre, categoria: cat, cantidad: 0 });
-      });
-    });
+  // ------------------------------------------------------
+  // Agregar nuevo vino
+  addForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const nombre = document.getElementById("wine-name").value;
+    const categoria = document.getElementById("wine-category").value;
+    const cantidad = parseInt(document.getElementById("wine-count").value);
+
+    inventario.push({ nombre, categoria, cantidad });
     renderInventario();
-    console.log('[app] inventario inicializado:', inventario.length, 'items');
+    guardarLocalStorage();
+    addForm.reset();
+    alert("Vino agregado correctamente.");
+  });
+
+  // ------------------------------------------------------
+  // Búsqueda
+  searchInput.addEventListener("input", () => {
+    const query = searchInput.value.toLowerCase();
+
+    const allWines = inventario.map((v, i) => ({
+      nombre: v.nombre,
+      categoria: v.categoria
+    }));
+
+    const filtered = allWines.filter(v => v.nombre.toLowerCase().includes(query));
+
+    searchResults.innerHTML = filtered.length
+      ? filtered.map(v => `<div class="search-item">${v.nombre} — ${v.categoria}</div>`).join("")
+      : "<div class='search-item'>No hay resultados</div>";
+  });
+
+  // ------------------------------------------------------
+  // Local Storage
+  function guardarLocalStorage() {
+    localStorage.setItem("inventario", JSON.stringify(inventario));
   }
 
-  initInventario();
+  function cargarLocalStorage() {
+    const data = JSON.parse(localStorage.getItem("inventario"));
+    if (data && data.length > 0) {
+      data.forEach(v => inventario.push(v));
+    } else {
+      Object.keys(vinos).forEach(cat => {
+        vinos[cat].forEach(nombre => {
+          inventario.push({ nombre, categoria: cat, cantidad: 0 });
+        });
+      });
+    }
+    renderInventario();
+  }
+
+  cargarLocalStorage();
 });
