@@ -1,78 +1,72 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Le Cellier - Lista de Compras</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="manifest" href="manifest.json">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Le Celier - App de Vinos</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <header class="navbar">
-    <div class="navbar-inner">
-      <div class="logo">
-        <svg width="40" height="40" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-          <rect width="120" height="120" rx="26" fill="url(#grad)" />
-          <path d="M35 40h50l-6 30H41l-6-30z" fill="white"/>
-          <circle cx="45" cy="80" r="6" fill="white"/>
-          <circle cx="75" cy="80" r="6" fill="white"/>
-          <defs>
-            <linearGradient id="grad" x1="0" y1="0" x2="120" y2="120" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#0a84ff"/>
-              <stop offset="100%" stop-color="#30d158"/>
-            </linearGradient>
-          </defs>
-        </svg>
-      </div>
-      <div class="title-large">Le Cellier</div>
-      <div class="subtitle">Lista de Compras</div>
-    </div>
-
-    <!-- 🔘 Interruptor moderno para modo oscuro -->
-    <label class="switch">
-      <input type="checkbox" id="toggle-dark">
-      <span class="slider"></span>
-    </label>
+  <header class="header">
+    <h1>Le Celier - Conteo de Vinos</h1>
   </header>
 
-  <form id="form-producto" class="grouped">
-    <input type="text" id="nombre" placeholder="Producto" required>
-    <input type="number" id="precio" placeholder="Precio (€)" step="0.01" required>
-    <input type="number" id="cantidad" placeholder="Cantidad" min="1" value="1" required>
-    <select id="categoria" required>
-      <option value="">Categoría</option>
-      <option>Vegetales</option>
-      <option>Frutas</option>
-      <option>Víveres</option>
-      <option>Carnes</option>
-      <option>Cuidado Personal</option>
-      <option>Limpieza</option>
-      <option>Bebidas</option>
-      <option>Aperitivos y Dulces</option>
-      <option>Panadería</option>
-    </select>
-    <button type="submit">Agregar</button>
-  </form>
+  <nav class="nav">
+    <button data-page="dashboard">Dashboard</button>
+    <button data-page="inventario">Inventario</button>
+    <button data-page="agregar">Agregar Vino</button>
+    <button data-page="buscar">Buscar</button>
+    <button data-page="ajustes">Ajustes</button>
+  </nav>
 
-  <div class="stats">
-    <div id="total-compra" class="stat">Total: €0.00</div>
-    <div id="presupuesto-restante" class="stat">Presupuesto: —</div>
-  </div>
+  <main id="app">
+    <!-- Dashboard -->
+    <section id="dashboard" class="page active">
+      <h2>Dashboard</h2>
+      <p>Bienvenido a la app de conteo de vinos. Selecciona una sección para comenzar.</p>
+    </section>
 
-  <ul id="lista"></ul>
+    <!-- Inventario -->
+    <section id="inventario" class="page">
+      <h2>Inventario</h2>
+      <div id="wine-list"></div>
+    </section>
 
-  <div class="tabbar">
-    <button id="btn-presupuesto" class="tab-btn">Presupuesto</button>
-    <button id="btn-resumen" class="tab-btn btn-resumen">Resumen Compra</button>
-  </div>
+    <!-- Agregar vino -->
+    <section id="agregar" class="page">
+      <h2>Agregar Vino</h2>
+      <form id="add-wine-form">
+        <label>Nombre del vino</label>
+        <input type="text" id="wine-name" required />
 
-  <div id="modal-resumen" class="modal">
-    <div class="sheet">
-      <table id="tabla-resumen"></table>
-      <button id="cerrar-modal" class="close">Cerrar</button>
-    </div>
-  </div>
+        <label>Categoría</label>
+        <select id="wine-category">
+          <option value="tinto">Tinto</option>
+          <option value="blanco">Blanco</option>
+          <option value="espumoso">Espumoso o Dulce</option>
+        </select>
+
+        <label>Cantidad</label>
+        <input type="number" min="0" id="wine-count" required />
+
+        <button type="submit">Guardar</button>
+      </form>
+    </section>
+
+    <!-- Buscar -->
+    <section id="buscar" class="page">
+      <h2>Buscar</h2>
+      <input type="text" id="search-box" placeholder="Buscar vino..." />
+      <div id="search-results"></div>
+    </section>
+
+    <!-- Ajustes -->
+    <section id="ajustes" class="page">
+      <h2>Ajustes</h2>
+      <p>Configuraciones futuras.</p>
+    </section>
+  </main>
 
   <script src="app.js"></script>
 </body>
