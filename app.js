@@ -31,6 +31,10 @@ const vinos = {
     "Mumm Cordon Rouge Brut", "Bollinger Special Cuvée",
     "Jorge Ordóñez N°1"
   ]
+  dulce: [
+    "Jorge Ordóñez N°1"
+  ]
+  
 };
 
 // Para almacenar cantidades
