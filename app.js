@@ -1,25 +1,40 @@
 document.addEventListener("DOMContentLoaded", () => {
 
+  console.log("[app] DOMContentLoaded - iniciando app");
+
+  // ------------------------------------------------------
+  // LISTA DE VINOS
+  // ------------------------------------------------------
   const vinos = {
-    tinto: ["Luis Cañas","Sierra Cantabria","Voche","RODA","Ricardo Dumas",
+    tinto: [
+      "Luis Cañas","Sierra Cantabria","Voche","RODA","Ricardo Dumas",
       "Pago de los Capellanes Joven","Silvanus","Viña Sastre Joven",
       "Pago de Carraovejas","Tomás Postigo 5 Año","Abadía Retuerta",
       "Summa Varietalis","Palacio Quemado","Habla del Silencio",
       "Tagonius","El Regajal","Ánima del Priorat","Bobos",
       "Corral de Campanas","Termes","Cuatro Pasos Black"
     ],
-    blanco: ["Emina Verdejo","El Perro Verde","Belondrade y Lurton",
+    blanco: [
+      "Emina Verdejo","El Perro Verde","Belondrade y Lurton",
       "Pentecostes Albariño","Pazo Baión","Polvorete","A Coroa",
       "O Luar do Sil","Belondrade Quinta Apolonia",
       "Finca Río Negro Gewürztraminer","Barbazul","Árabe","Emina Rosé"
     ],
-    espumoso: ["Babot","Gramona Imperial","Tantum Ergo Rosé",
-      "Mumm Cordon Rouge Brut","Bollinger Special Cuvée"
+    espumoso: [
+      "Babot","Gramona Imperial","Tantum Ergo Rosé",
+      "Mumm Cordon Rouge Brut","Bollinger Special Cuvée",
+      "Jorge Ordóñez N°1"
     ]
   };
 
+  // ------------------------------------------------------
+  // INVENTARIO
+  // ------------------------------------------------------
   const inventario = [];
 
+  // ------------------------------------------------------
+  // ELEMENTOS DOM
+  // ------------------------------------------------------
   const buttons = document.querySelectorAll("nav button");
   const pages = document.querySelectorAll(".page");
   const wineList = document.getElementById("wine-list");
@@ -27,16 +42,27 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchInput = document.getElementById("search-box");
   const searchResults = document.getElementById("search-results");
 
-  // Navegación
+  console.log("[app] botones nav encontrados:", buttons.length);
+  console.log("[app] páginas encontradas:", pages.length);
+  console.log("[app] wineList existe?", !!wineList);
+  console.log("[app] addForm existe?", !!addForm);
+  console.log("[app] searchBox existe?", !!searchInput);
+
+  // ------------------------------------------------------
+  // NAVEGACIÓN ENTRE SECCIONES
+  // ------------------------------------------------------
   buttons.forEach(btn => {
     btn.addEventListener("click", () => {
       const page = btn.dataset.page;
       pages.forEach(p => p.classList.remove("active"));
       document.getElementById(page).classList.add("active");
+      console.log("[app] clic en nav ->", page);
     });
   });
 
-  // Render inventario
+  // ------------------------------------------------------
+  // RENDER INVENTARIO
+  // ------------------------------------------------------
   function renderInventario() {
     wineList.innerHTML = "";
 
@@ -57,7 +83,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Botones + / −
+  // ------------------------------------------------------
+  // BOTONES + / −
+  // ------------------------------------------------------
   wineList.addEventListener("click", (e) => {
     if (e.target.classList.contains("plus") || e.target.classList.contains("minus")) {
       const wrapper = e.target.closest(".qty-wrapper");
@@ -74,7 +102,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Edición manual
+  // ------------------------------------------------------
+  // EDICIÓN MANUAL
+  // ------------------------------------------------------
   wineList.addEventListener("input", (e) => {
     if (e.target.classList.contains("qty-input")) {
       const wrapper = e.target.closest(".qty-wrapper");
@@ -86,7 +116,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Agregar vino
+  // ------------------------------------------------------
+  // AGREGAR VINO
+  // ------------------------------------------------------
   addForm.addEventListener("submit", (e) => {
     e.preventDefault();
     const nombre = document.getElementById("wine-name").value;
@@ -100,7 +132,9 @@ document.addEventListener("DOMContentLoaded", () => {
     alert("Vino agregado correctamente.");
   });
 
-  // Búsqueda
+  // ------------------------------------------------------
+  // BÚSQUEDA
+  // ------------------------------------------------------
   searchInput.addEventListener("input", () => {
     const query = searchInput.value.toLowerCase();
     const filtered = inventario.filter(v => v.nombre.toLowerCase().includes(query));
@@ -110,7 +144,9 @@ document.addEventListener("DOMContentLoaded", () => {
       : "<div class='search-item'>No hay resultados</div>";
   });
 
-  // LocalStorage
+  // ------------------------------------------------------
+  // LOCAL STORAGE
+  // ------------------------------------------------------
   function guardarLocalStorage() {
     localStorage.setItem("inventario", JSON.stringify(inventario));
   }
@@ -120,6 +156,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (data && data.length > 0) {
       data.forEach(v => inventario.push(v));
     } else {
+      // Inicializar inventario desde la lista de vinos
       Object.keys(vinos).forEach(cat => {
         vinos[cat].forEach(nombre => {
           inventario.push({ nombre, categoria: cat, cantidad: 0 });
@@ -131,4 +168,5 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   cargarLocalStorage();
+
 });
