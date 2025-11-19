@@ -1,3 +1,4 @@
+// ------------------------------------------------------
 // APP DE VINOS - Funcionalidad básica
 // ------------------------------------------------------
 
@@ -19,19 +20,18 @@ const vinos = {
   ],
   espumoso: [
     "Babot", "Gramona Imperial", "Tantum Ergo Rosé",
-    "Mumm Cordon Rouge Brut", "Bollinger Special Cuvée",
-    "Jorge Ordóñez N°1"
+    "Mumm Cordon Rouge Brut", "Bollinger Special Cuvée"
   ],
   dulce: [
     "Jorge Ordóñez N°1"
   ]
 };
 
-// Inventario dinámico
+// Inventario dinámico (cantidad editable)
 const inventario = [];
 
 // ------------------------------------------------------
-// NAVEGACIÓN ENTRE SECCIONES
+// NAVEGACIÓN ENTRE PÁGINAS
 // ------------------------------------------------------
 const buttons = document.querySelectorAll("nav button");
 const pages = document.querySelectorAll(".page");
@@ -45,10 +45,12 @@ buttons.forEach(btn => {
 });
 
 // ------------------------------------------------------
-// RENDER INVENTARIO
+// RENDER DEL INVENTARIO
 // ------------------------------------------------------
 function renderInventario() {
   const list = document.getElementById("wine-list");
+  if (!list) return;
+
   list.innerHTML = "";
 
   inventario.forEach(item => {
@@ -67,48 +69,53 @@ function renderInventario() {
 // ------------------------------------------------------
 const addForm = document.getElementById("add-wine-form");
 
-addForm.addEventListener("submit", (e) => {
-  e.preventDefault();
+if (addForm) {
+  addForm.addEventListener("submit", e => {
+    e.preventDefault();
 
-  const nombre = document.getElementById("wine-name").value;
-  const categoria = document.getElementById("wine-category").value;
-  const cantidad = parseInt(document.getElementById("wine-count").value);
+    const nombre = document.getElementById("wine-name").value.trim();
+    const categoria = document.getElementById("wine-category").value;
+    const cantidad = parseInt(document.getElementById("wine-count").value);
 
-  inventario.push({ nombre, categoria, cantidad });
-  renderInventario();
+    if (!nombre || isNaN(cantidad)) {
+      alert("Por favor completa todos los campos.");
+      return;
+    }
 
-  addForm.reset();
-  alert("Vino agregado correctamente.");
-});
+    inventario.push({ nombre, categoria, cantidad });
+    renderInventario();
+
+    addForm.reset();
+    alert("Vino agregado correctamente.");
+  });
+}
 
 // ------------------------------------------------------
-// BÚSQUEDA BÁSICA
+// BÚSQUEDA
 // ------------------------------------------------------
 const searchInput = document.getElementById("search-box");
 const searchResults = document.getElementById("search-results");
 
-searchInput.addEventListener("input", () => {
-  const query = searchInput.value.toLowerCase();
+if (searchInput) {
+  searchInput.addEventListener("input", () => {
+    const query = searchInput.value.toLowerCase();
 
-  const allWines = [];
+    const allWines = Object.keys(vinos).flatMap(cat =>
+      vinos[cat].map(n => ({ nombre: n, categoria: cat }))
+    );
 
-  Object.keys(vinos).forEach(cat => {
-    vinos[cat].forEach(v => {
-      allWines.push({ nombre: v, categoria: cat });
-    });
+    const filtered = allWines.filter(v =>
+      v.nombre.toLowerCase().includes(query)
+    );
+
+    searchResults.innerHTML = filtered
+      .map(v => `<div class="search-item">${v.nombre} — ${v.categoria}</div>`)
+      .join("");
   });
-
-  const filtered = allWines.filter(v =>
-    v.nombre.toLowerCase().includes(query)
-  );
-
-  searchResults.innerHTML = filtered
-    .map(v => `<div class="search-item">${v.nombre} — ${v.categoria}</div>`)
-    .join("");
-});
+}
 
 // ------------------------------------------------------
-// INICIALIZACIÓN DEL INVENTARIO
+// INICIALIZAR INVENTARIO
 // ------------------------------------------------------
 function initInventario() {
   Object.keys(vinos).forEach(cat => {
@@ -116,7 +123,6 @@ function initInventario() {
       inventario.push({ nombre, categoria: cat, cantidad: 0 });
     });
   });
-
   renderInventario();
 }
 
