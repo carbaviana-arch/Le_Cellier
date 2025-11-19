@@ -1,4 +1,4 @@
-/* ESTILO MINIMALISTA / MODERNO - INSPIRADO EN iOS */
+/* ESTILO MINIMALISTA / MODERNO - RESPONSIVE (iOS Inspired) */
 
 body {
 margin: 0;
@@ -24,6 +24,7 @@ justify-content: space-around;
 background: #ffffff;
 padding: 0.5rem;
 border-bottom: 1px solid #d1d1d6;
+flex-wrap: wrap;
 }
 
 nav button {
@@ -36,6 +37,7 @@ font-size: 1rem;
 font-weight: 500;
 border-radius: 10px;
 transition: background 0.2s;
+margin: 0.2rem;
 }
 
 nav button:hover {
@@ -53,8 +55,8 @@ display: block;
 
 #wine-list {
 display: grid;
-grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-gap: 1rem;
+grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+gap: 0.8rem;
 }
 
 .wine-item {
@@ -74,7 +76,7 @@ color: #1c1c1e;
 display: flex;
 flex-direction: column;
 gap: 1rem;
-max-width: 450px;
+max-width: 100%;
 }
 
 #add-wine-form input,
@@ -104,7 +106,6 @@ background: #005bb5;
 #search-box {
 padding: 0.6rem;
 width: 100%;
-max-width: 420px;
 border-radius: 12px;
 border: 1px solid #d1d1d6;
 background: #ffffff;
@@ -118,4 +119,37 @@ padding: 0.8rem;
 border-radius: 12px;
 border: 1px solid #e5e5ea;
 font-size: 1rem;
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 768px) {
+nav {
+flex-direction: column;
+align-items: center;
+}
+
+#wine-list {
+grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+gap: 0.6rem;
+}
+
+header {
+font-size: 1.3rem;
+padding: 0.8rem;
+}
+
+nav button {
+width: 90%;
+text-align: center;
+}
+}
+
+@media (max-width: 480px) {
+#wine-list {
+grid-template-columns: 1fr;
+}
+
+#add-wine-form input, #add-wine-form select, #add-wine-form button {
+width: 100%;
+}
 }
