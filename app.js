@@ -1,16 +1,7 @@
 // APP DE VINOS - Funcionalidad básica
 // ------------------------------------------------------
-// Este archivo contiene:
-// - Navegación entre páginas
-// - Carga inicial de vinos
-// - Render del inventario
-// - Búsqueda básica
-// - Agregar nuevos vinos al inventario
 
-// ------------------------------------------------------
 // LISTA INICIAL DE VINOS
-// ------------------------------------------------------
-
 const vinos = {
   tinto: [
     "Luis Cañas", "Sierra Cantabria", "Voche", "RODA", "Ricardo Dumas",
@@ -30,14 +21,13 @@ const vinos = {
     "Babot", "Gramona Imperial", "Tantum Ergo Rosé",
     "Mumm Cordon Rouge Brut", "Bollinger Special Cuvée",
     "Jorge Ordóñez N°1"
-  ]
+  ],
   dulce: [
     "Jorge Ordóñez N°1"
   ]
-  
 };
 
-// Para almacenar cantidades
+// Inventario dinámico
 const inventario = [];
 
 // ------------------------------------------------------
@@ -59,10 +49,9 @@ buttons.forEach(btn => {
 // ------------------------------------------------------
 function renderInventario() {
   const list = document.getElementById("wine-list");
-
   list.innerHTML = "";
 
-  inventario.forEach((item, index) => {
+  inventario.forEach(item => {
     const div = document.createElement("div");
     div.classList.add("wine-item");
     div.innerHTML = `
@@ -78,7 +67,7 @@ function renderInventario() {
 // ------------------------------------------------------
 const addForm = document.getElementById("add-wine-form");
 
-addForm.addEventListener("submit", e => {
+addForm.addEventListener("submit", (e) => {
   e.preventDefault();
 
   const nombre = document.getElementById("wine-name").value;
@@ -101,28 +90,33 @@ const searchResults = document.getElementById("search-results");
 searchInput.addEventListener("input", () => {
   const query = searchInput.value.toLowerCase();
 
-  const allWines = [
-    ...vinos.tinto.map(v => ({ nombre: v, categoria: "tinto" })),
-    ...vinos.blanco.map(v => ({ nombre: v, categoria: "blanco" })),
-    ...vinos.espumoso.map(v => ({ nombre: v, categoria: "espumoso" }))
-  ];
+  const allWines = [];
+
+  Object.keys(vinos).forEach(cat => {
+    vinos[cat].forEach(v => {
+      allWines.push({ nombre: v, categoria: cat });
+    });
+  });
 
   const filtered = allWines.filter(v =>
     v.nombre.toLowerCase().includes(query)
   );
 
   searchResults.innerHTML = filtered
-    .map(v => `<div class="search-item">${v.nombre} — ${v.categoria}</div>`) 
+    .map(v => `<div class="search-item">${v.nombre} — ${v.categoria}</div>`)
     .join("");
 });
 
-// Inicializar inventario con cantidades 0 para empezar
+// ------------------------------------------------------
+// INICIALIZACIÓN DEL INVENTARIO
+// ------------------------------------------------------
 function initInventario() {
   Object.keys(vinos).forEach(cat => {
     vinos[cat].forEach(nombre => {
       inventario.push({ nombre, categoria: cat, cantidad: 0 });
     });
   });
+
   renderInventario();
 }
 
