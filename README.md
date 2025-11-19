@@ -1,61 +1,115 @@
-Le Celier - App de Conteo de Vinos
+📄 README – Le Cellier (Wine Inventory App)
 
-Esta es una maqueta inicial de una aplicación web para la gestión y conteo de vinos, basada en el repositorio original de Le Celier, pero rediseñada desde cero para crear una interfaz moderna y fácil de usar. Esta versión incluye estructura básica, navegación funcional y un inventario inicial.
+Minimalist & Modern Wine Inventory (iOS-Inspired UI)
 
-📦 Archivos del proyecto
-	•	index.html – Estructura principal de la aplicación.
-	•	style.css – Estilos básicos utilizando un diseño neutral de maqueta.
-	•	app.js – Lógica funcional mínima para navegación, inventario, búsqueda y agregado de vinos.
-	•	README.md – Información general del proyecto.
+🍷 Descripción
 
-🍷 Características actuales (v.0.1)
+Le Cellier es una aplicación web minimalista y responsiva diseñada para gestionar y contar vinos de forma rápida y elegante. Inspirada en la interfaz de iOS, ofrece una experiencia limpia, fluida y agradable tanto en móvil como en escritorio.
 
-✔️ Navegación funcional
+La app permite:
 
-Los botones del menú permiten cambiar entre las secciones:
-	•	Dashboard
-	•	Inventario
-	•	Agregar Vino
-	•	Buscar
-	•	Ajustes
+Visualizar todas las referencias de vinos disponibles (tinto, blanco, espumoso, dulce).
 
-✔️ Inventario precargado
+Registrar cantidades en inventario.
 
-Se incluye una lista inicial de vinos clasificados por:
-	•	Tintos
-	•	Blancos
-	•	Espumosos y Dulces
+Agregar vinos nuevos.
 
-El sistema inicializa todos los vinos con una cantidad de 0 unidades, permitiendo llevar un control sencillo.
+Buscar vinos instantáneamente.
 
-✔️ Agregar vinos manualmente
+Navegar entre secciones mediante una interfaz moderna y simple.
 
-El formulario permite añadir:
-	•	Nombre del vino
-	•	Categoría
-	•	Cantidad
+Ideal para bodegas, restaurantes, enotecas o particulares que deseen llevar un control organizado.
 
-✔️ Búsqueda rápida
+🧭 Características principales
+✔️ Diseño minimalista iOS
 
-Caja de texto que filtra vinos por nombre en tiempo real.
+Interfaz ligera, clara, moderna y totalmente optimizada para móvil.
 
-🔧 Próximas mejoras (a implementar)
-	•	Rediseño completo con estética bodega moderna / bohemia.
-	•	Iconografía e imágenes relacionadas con el mundo del vino.
-	•	Base de datos persistente (localStorage o backend real).
-	•	Gestión avanzada de inventario (sumar/restar stock, alertas, histórico, etc.).
-	•	Estadísticas y gráficas.
-	•	Animaciones y transiciones suaves.
+✔️ Inventario dinámico
 
-🚀 Cómo usar
-	1.	Abre index.html en cualquier navegador para probar la versión básica.
-	2.	Asegúrate de que app.js y style.css estén en la misma carpeta.
-	3.	Listo: ya puedes navegar, buscar, agregar y explorar el inventario.
+Todos los vinos se cargan con cantidad inicial 0, pudiendo modificar o añadir nuevos.
 
-📚 Créditos
+✔️ Buscador en tiempo real
 
-Proyecto desarrollado como evolución del concepto original “Le Celier”, con objetivo de modernización y adaptación.
+Filtra referencias al instante mientras escribes.
 
-⸻
+✔️ Navegación limpia
 
-Cuando la maqueta esté aprobada, avanzaremos hacia el diseño final elegante y visualmente atractivo inspirado en bodegas modernas. 🍇🍷✨
+Sistema de páginas con transiciones suaves y estructura simple.
+
+✔️ Modular y escalable
+
+Código preparado para añadir futuras funciones:
+
+Edición de cantidades desde el inventario
+
+Modales estilo iOS
+
+Estadísticas de consumo
+
+Sincronización con base de datos
+
+📁 Estructura del proyecto
+Le_Cellier/
+├── index.html      # Estructura principal
+├── style.css       # Estilo minimalista iOS
+├── script.js       # Funciones principales de la aplicación
+└── README.md       # Documentación del proyecto
+
+🚀 Cómo usar la aplicación
+
+Abre la app en cualquier navegador moderno.
+
+Navega usando los botones de la parte superior.
+
+Explora el inventario precargado organizado por categorías.
+
+Usa el buscador para encontrar vinos rápidamente.
+
+Agrega nuevos vinos desde la sección correspondiente.
+
+📱 Responsive / Móvil
+
+El diseño está pensado principalmente para uso en smartphone, con:
+
+Botones táctiles amplios
+
+Cards suaves y redondeadas
+
+Layout tipo app de iOS
+
+Interacciones rápidas y claras
+
+🛠️ Tecnologías
+
+HTML5
+
+CSS3 (iOS-like style)
+
+JavaScript Vanilla
+
+No requiere dependencias, frameworks ni backend.
+
+🧩 Mejoras próximas (Roadmap)
+
+(según decisiones acordadas en el proyecto)
+
+UI más elegante con animaciones iOS.
+
+Edición directa de cantidades desde el inventario (botones + / −).
+
+Añadir iconos de categorías.
+
+Historial de movimientos.
+
+Exportación a CSV / Excel.
+
+Modo oscuro.
+
+📜 Licencia
+
+Uso libre y abierto mientras se mantenga la atribución al autor del proyecto.
+
+👤 Autor
+
+Proyecto personalizado y rediseñado por Carbaviana en colaboración con ChatGPT.
