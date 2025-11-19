@@ -1,143 +1,125 @@
-// ========================
-//   VARIABLES GLOBALES
-// ========================
-let lista = JSON.parse(localStorage.getItem('lista')) || [];
-let presupuesto = parseFloat(localStorage.getItem('presupuesto')) || 0;
-const listaEl = document.getElementById('lista');
-const totalEl = document.getElementById('total-compra');
-const presEl = document.getElementById('presupuesto-restante');
-const modal = document.getElementById('modal-resumen');
-const tabla = document.getElementById('tabla-resumen');
+// APP DE VINOS - Funcionalidad básica
+// ------------------------------------------------------
+// Este archivo contiene:
+// - Navegación entre páginas
+// - Carga inicial de vinos
+// - Render del inventario
+// - Búsqueda básica
+// - Agregar nuevos vinos al inventario
 
-// ========================
-//   RENDERIZAR LISTA
-// ========================
-function renderLista() {
-  listaEl.innerHTML = '';
-  lista.forEach((item, index) => {
-    const li = document.createElement('li');
-    li.innerHTML = `
-      <div class="nombre">${item.nombre} (x${item.cantidad})</div>
-      <div class="categoria">${item.categoria}</div>
-      <div class="subtotal">Subtotal: €${(item.precio * item.cantidad).toFixed(2)}</div>
-    `;
+// ------------------------------------------------------
+// LISTA INICIAL DE VINOS
+// ------------------------------------------------------
 
-    // Aplicar estado comprado si existe
-    if(item.estado === 'comprado') {
-      li.classList.add('comprado');
-    }
+const vinos = {
+  tinto: [
+    "Luis Cañas", "Sierra Cantabria", "Voche", "RODA", "Ricardo Dumas",
+    "Pago de los Capellanes Joven", "Silvanus", "Viña Sastre Joven",
+    "Pago de Carraovejas", "Tomás Postigo 5 Año", "Abadía Retuerta",
+    "Summa Varietalis", "Palacio Quemado", "Habla del Silencio",
+    "Tagonius", "El Regajal", "Ánima del Priorat", "Bobos",
+    "Corral de Campanas", "Termes", "Cuatro Pasos Black"
+  ],
+  blanco: [
+    "Emina Verdejo", "El Perro Verde", "Belondrade y Lurton",
+    "Pentecostes Albariño", "Pazo Baión", "Polvorete", "A Coroa",
+    "O Luar do Sil", "Belondrade Quinta Apolonia",
+    "Finca Río Negro Gewürztraminer", "Barbazul", "Árabe", "Emina Rosé"
+  ],
+  espumoso: [
+    "Babot", "Gramona Imperial", "Tantum Ergo Rosé",
+    "Mumm Cordon Rouge Brut", "Bollinger Special Cuvée",
+    "Jorge Ordóñez N°1"
+  ]
+};
 
-    // Marcar como comprado al tocar
-    li.addEventListener('click', () => {
-      li.classList.toggle('comprado');
-      // Actualizar estado en el objeto
-      item.estado = li.classList.contains('comprado') ? 'comprado' : 'pendiente';
-      // Mover al final
-      lista.push(lista.splice(index, 1)[0]);
-      guardarLista();
-      renderLista();
-    });
+// Para almacenar cantidades
+const inventario = [];
 
-    listaEl.appendChild(li);
+// ------------------------------------------------------
+// NAVEGACIÓN ENTRE SECCIONES
+// ------------------------------------------------------
+const buttons = document.querySelectorAll("nav button");
+const pages = document.querySelectorAll(".page");
+
+buttons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    const page = btn.dataset.page;
+    pages.forEach(p => p.classList.remove("active"));
+    document.getElementById(page).classList.add("active");
   });
-  actualizarTotales();
+});
+
+// ------------------------------------------------------
+// RENDER INVENTARIO
+// ------------------------------------------------------
+function renderInventario() {
+  const list = document.getElementById("wine-list");
+
+  list.innerHTML = "";
+
+  inventario.forEach((item, index) => {
+    const div = document.createElement("div");
+    div.classList.add("wine-item");
+    div.innerHTML = `
+      <strong>${item.nombre}</strong> — ${item.categoria.toUpperCase()}<br>
+      Cantidad: ${item.cantidad}
+    `;
+    list.appendChild(div);
+  });
 }
 
-// ========================
-//   TOTALES Y PRESUPUESTO
-// ========================
-function actualizarTotales() {
-  const total = lista.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
-  totalEl.textContent = `Total: €${total.toFixed(2)}`;
-  if (presupuesto > 0) {
-    const restante = presupuesto - total;
-    presEl.textContent = `Presupuesto: €${restante.toFixed(2)}`;
-    presEl.classList.toggle('negative', restante < 0);
-  } else {
-    presEl.textContent = 'Presupuesto: —';
-  }
-}
+// ------------------------------------------------------
+// AGREGAR NUEVO VINO
+// ------------------------------------------------------
+const addForm = document.getElementById("add-wine-form");
 
-// ========================
-//   GUARDAR LISTA
-// ========================
-function guardarLista() {
-  localStorage.setItem('lista', JSON.stringify(lista));
-  localStorage.setItem('presupuesto', presupuesto);
-}
-
-// ========================
-//   FORMULARIO
-// ========================
-document.getElementById('form-producto').addEventListener('submit', e => {
+addForm.addEventListener("submit", e => {
   e.preventDefault();
-  const nombre = document.getElementById('nombre').value.trim();
-  const precio = parseFloat(document.getElementById('precio').value);
-  const cantidad = parseInt(document.getElementById('cantidad').value);
-  const categoria = document.getElementById('categoria').value;
-  if (!nombre || isNaN(precio) || isNaN(cantidad) || !categoria) return;
-  lista.push({ nombre, precio, cantidad, categoria, estado: 'pendiente' });
-  guardarLista();
-  renderLista();
-  e.target.reset();
-  document.getElementById('cantidad').value = 1;
+
+  const nombre = document.getElementById("wine-name").value;
+  const categoria = document.getElementById("wine-category").value;
+  const cantidad = parseInt(document.getElementById("wine-count").value);
+
+  inventario.push({ nombre, categoria, cantidad });
+  renderInventario();
+
+  addForm.reset();
+  alert("Vino agregado correctamente.");
 });
 
-// ========================
-//   PRESUPUESTO
-// ========================
-document.getElementById('btn-presupuesto').addEventListener('click', () => {
-  const nuevo = prompt('Ingrese presupuesto (€):', presupuesto > 0 ? presupuesto : '');
-  if (nuevo !== null && !isNaN(parseFloat(nuevo))) {
-    presupuesto = parseFloat(nuevo);
-    guardarLista();
-    actualizarTotales();
-  }
+// ------------------------------------------------------
+// BÚSQUEDA BÁSICA
+// ------------------------------------------------------
+const searchInput = document.getElementById("search-box");
+const searchResults = document.getElementById("search-results");
+
+searchInput.addEventListener("input", () => {
+  const query = searchInput.value.toLowerCase();
+
+  const allWines = [
+    ...vinos.tinto.map(v => ({ nombre: v, categoria: "tinto" })),
+    ...vinos.blanco.map(v => ({ nombre: v, categoria: "blanco" })),
+    ...vinos.espumoso.map(v => ({ nombre: v, categoria: "espumoso" }))
+  ];
+
+  const filtered = allWines.filter(v =>
+    v.nombre.toLowerCase().includes(query)
+  );
+
+  searchResults.innerHTML = filtered
+    .map(v => `<div class="search-item">${v.nombre} — ${v.categoria}</div>`) 
+    .join("");
 });
 
-// ========================
-//   MODAL RESUMEN
-// ========================
-document.getElementById('btn-resumen').addEventListener('click', () => {
-  tabla.innerHTML = `
-    <tr><th>Producto</th><th>Cant.</th><th>Precio</th><th>Subtotal</th></tr>
-  `;
-  lista.forEach(item => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${item.nombre}</td>
-      <td>${item.cantidad}</td>
-      <td>€${item.precio.toFixed(2)}</td>
-      <td>€${(item.precio * item.cantidad).toFixed(2)}</td>
-    `;
-    tabla.appendChild(tr);
+// Inicializar inventario con cantidades 0 para empezar
+function initInventario() {
+  Object.keys(vinos).forEach(cat => {
+    vinos[cat].forEach(nombre => {
+      inventario.push({ nombre, categoria: cat, cantidad: 0 });
+    });
   });
-  modal.style.display = 'flex';
-});
-document.getElementById('cerrar-modal').addEventListener('click', () => {
-  modal.style.display = 'none';
-});
-
-// ========================
-//   INICIALIZAR APP
-// ========================
-renderLista();
-
-// ========================
-//   SWITCH MODO OSCURO
-// ========================
-const toggleDark = document.getElementById('toggle-dark');
-// Leer estado guardado
-if (localStorage.getItem('theme') === 'dark') {
-  document.body.classList.add('dark-mode');
-  toggleDark.checked = true;
+  renderInventario();
 }
-toggleDark.addEventListener('change', () => {
-  if (toggleDark.checked) {
-    document.body.classList.add('dark-mode');
-    localStorage.setItem('theme', 'dark');
-  } else {
-    document.body.classList.remove('dark-mode');
-    localStorage.setItem('theme', 'light');
-  }
-});
+
+initInventario();
