@@ -1,146 +1,35 @@
-/* ---------------------------
-   ESTILO MINIMALISTA iOS
-   --------------------------- */
-
-body {
-  margin: 0;
-  padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background: #f2f2f7;
-  color: #1c1c1e;
+/* Contenedor de cantidad editable con botones + / - */
+.qty-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-/* HEADER */
-header {
-  background: #ffffff;
-  color: #1c1c1e;
-  padding: 1rem;
+.qty-input {
+  width: 50px;
+  padding: 4px;
+  font-size: 1rem;
   text-align: center;
-  font-size: 1.6rem;
-  font-weight: 600;
-  border-bottom: 1px solid #e5e5ea;
-}
-
-/* NAV */
-nav {
-  display: flex;
-  justify-content: space-around;
-  background: #ffffff;
-  padding: 0.5rem;
-  border-bottom: 1px solid #e5e5ea;
-  flex-wrap: wrap;
-}
-
-nav button {
-  background: #ffffff;
-  color: #007aff;
+  border-radius: 6px;
   border: 1px solid #d1d1d6;
-  padding: 0.6rem 1rem;
-  cursor: pointer;
-  font-size: 1rem;
-  border-radius: 12px;
-  transition: 0.2s;
-  margin: 0.2rem;
+  background-color: #fafafa;
 }
 
-nav button:hover {
-  background: #f2f2f7;
-}
-
-/* PAGES */
-.page {
-  display: none;
-  padding: 1.5rem;
-}
-
-.page.active {
-  display: block;
-}
-
-/* INVENTARIO */
-#wine-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 0.8rem;
-}
-
-.wine-item {
-  background: #ffffff;
-  padding: 1rem;
-  border-radius: 16px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-  border: 1px solid #e5e5ea;
-}
-
-.wine-item strong {
-  color: #1c1c1e;
-  font-size: 1.1rem;
-}
-
-/* FORMULARIO */
-#add-wine-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-#add-wine-form input,
-#add-wine-form select {
-  padding: 0.7rem;
-  border: 1px solid #d1d1d6;
-  border-radius: 12px;
-  font-size: 1rem;
-  background: #ffffff;
-}
-
-#add-wine-form button {
-  background: #007aff;
-  color: #ffffff;
-  padding: 0.9rem;
-  border-radius: 12px;
+.qty-btn {
+  background-color: #007aff;
   border: none;
-  font-size: 1.05rem;
-  font-weight: 600;
+  padding: 5px 8px;
+  color: white;
+  font-size: 1rem;
+  border-radius: 6px;
   cursor: pointer;
+  transition: 0.2s;
 }
 
-#add-wine-form button:hover {
-  background: #0062d6;
+.qty-btn:hover {
+  background-color: #005bb5;
 }
 
-/* BUSCADOR */
-#search-box {
-  padding: 0.7rem;
-  width: 100%;
-  border-radius: 12px;
-  border: 1px solid #d1d1d6;
-  background: #ffffff;
-  margin-bottom: 1rem;
-}
-
-.search-item {
-  background: #ffffff;
-  margin-top: 0.5rem;
-  padding: 0.8rem;
-  border-radius: 12px;
-  border: 1px solid #e5e5ea;
-}
-
-/* RESPONSIVE */
-@media (max-width: 768px) {
-  nav {
-    flex-direction: column;
-  }
-  nav button {
-    width: 90%;
-  }
-  #wine-list {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  }
-}
-
-@media (max-width: 480px) {
-  #wine-list {
-    grid-template-columns: 1fr;
-  }
+.qty-btn:active {
+  transform: scale(0.95);
 }
