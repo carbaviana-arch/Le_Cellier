@@ -1,73 +1,394 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Le Celier - App de Vinos</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Le Celier Manager - Starter (index.html)</title>
+  <meta name="description" content="Dashboard modular para gestión de establecimiento - inventario, pedidos, personal, eventos y caja." />
+  <style>
+    :root{
+      --bg: #0f0f10;
+      --card: #121212;
+      --muted: #bdb6ae;
+      --accent: #7b1f2a; /* vino */
+      --accent-2: #cfa77b; /* dorado suave */
+      --glass: rgba(255,255,255,0.03);
+      --radius: 12px;
+      --gap: 16px;
+      font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      color-scheme: dark;
+    }
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background: linear-gradient(180deg,#071014 0%, #0b0b0b 60%);
+      color: #e9e6e2;
+      -webkit-font-smoothing:antialiased;
+      padding:24px;
+    }
+    .app{
+      max-width:1200px;
+      margin:0 auto;
+    }
+    header.app-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:20px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .logo{
+      width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#3b0f13);display:flex;align-items:center;justify-content:center;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.6);
+    }
+    .brand h1{margin:0;font-size:20px;letter-spacing:0.6px}
+    .top-stats{display:flex;gap:12px;align-items:center}
+    .stat{background:var(--glass);padding:10px 14px;border-radius:10px;font-size:13px;color:var(--muted)}
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 340px;
+      gap:20px;
+    }
+
+    /* Dashboard column */
+    .main-card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow: 0 8px 30px rgba(0,0,0,.6);
+      min-height:520px;
+    }
+
+    .cards-grid{
+      display:grid;grid-template-columns: repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:14px;
+    }
+    .module-card{background:var(--card);padding:16px;border-radius:12px;min-height:92px;display:flex;flex-direction:column;justify-content:space-between}
+    .module-card h3{margin:0 0 6px 0;font-size:15px}
+    .module-card p{margin:0;font-size:13px;color:var(--muted)}
+
+    .module-actions{display:flex;gap:8px;margin-top:10px}
+    button.btn{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 10px;border-radius:8px;color:inherit;cursor:pointer}
+    button.primary{background:linear-gradient(90deg,var(--accent),#9f2940);border:none;color:white}
+
+    /* Right column */
+    .right-panel{display:flex;flex-direction:column;gap:12px}
+    .panel{background:var(--card);border-radius:12px;padding:12px}
+
+    /* Dock */
+    .dock{
+      position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));backdrop-filter:blur(6px);padding:8px;border-radius:999px;display:flex;gap:8px;box-shadow:0 10px 30px rgba(0,0,0,.6);
+    }
+    .dock button{background:transparent;border:none;padding:10px 14px;border-radius:999px;display:flex;align-items:center;gap:8px;color:var(--muted);cursor:pointer}
+    .dock button.active{background:linear-gradient(90deg,var(--accent),#9f2940);color:white}
+
+    /* Tables */
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.03);font-size:13px}
+
+    /* Responsive */
+    @media (max-width:900px){
+      .grid{grid-template-columns:1fr}
+      .right-panel{order:2}
+    }
+
+    /* small helper */
+    .muted{color:var(--muted);font-size:13px}
+    .chip{display:inline-block;padding:6px 8px;border-radius:999px;background:rgba(255,255,255,0.03);font-size:13px}
+
+  </style>
 </head>
 <body>
+  <div class="app">
+    <header class="app-header">
+      <div class="brand">
+        <div class="logo">LC</div>
+        <div>
+          <h1>Le Celier Manager</h1>
+          <div class="muted">Gestión de establecimiento · Dashboard</div>
+        </div>
+      </div>
+      <div class="top-stats">
+        <div class="stat" id="stat-inventory">🍷 0 bajos</div>
+        <div class="stat" id="stat-event">📅 Próx evento: —</div>
+        <div class="stat" id="stat-staff">👥 Turnos hoy: —</div>
+      </div>
+    </header>
 
-  <header class="header">
-    <h1>Le Celier - Conteo de Vinos</h1>
-  </header>
+    <main class="grid">
+      <section class="main-card" id="main-card">
+        <h2 style="margin-top:0">Resumen rápido</h2>
+        <div class="cards-grid" id="quick-cards">
+          <div class="module-card" data-module="inventory">
+            <div>
+              <h3>🍷 Inventario de Vinos</h3>
+              <p id="inventory-summary">Total: 0 — Botellas críticas: 0</p>
+            </div>
+            <div class="module-actions">
+              <button class="btn" onclick="openModule('inventory')">Abrir</button>
+              <button class="btn" onclick="openQuickAdd('inventory')">+ Añadir</button>
+            </div>
+          </div>
 
-  <nav class="nav">
-    <button data-page="dashboard">Dashboard</button>
-    <button data-page="inventario">Inventario</button>
-    <button data-page="agregar">Agregar Vino</button>
-    <button data-page="buscar">Buscar</button>
-    <button data-page="ajustes">Ajustes</button>
-  </nav>
+          <div class="module-card" data-module="orders">
+            <div>
+              <h3>📦 Pedidos</h3>
+              <p id="orders-summary">Pendientes: 0</p>
+            </div>
+            <div class="module-actions">
+              <button class="btn" onclick="openModule('orders')">Abrir</button>
+              <button class="btn" onclick="openQuickAdd('orders')">+ Nuevo</button>
+            </div>
+          </div>
 
-  <main id="app">
-    <!-- Dashboard -->
-    <section id="dashboard" class="page active">
-      <h2>Dashboard</h2>
-      <p>Bienvenido a la app de conteo de vinos. Selecciona una sección para comenzar.</p>
-    </section>
+          <div class="module-card" data-module="staff">
+            <div>
+              <h3>👥 Personal</h3>
+              <p id="staff-summary">Turnos hoy: 0</p>
+            </div>
+            <div class="module-actions">
+              <button class="btn" onclick="openModule('staff')">Abrir</button>
+              <button class="btn" onclick="openQuickAdd('staff')">+ Turno</button>
+            </div>
+          </div>
 
-    <!-- Inventario -->
-    <section id="inventario" class="page">
-      <h2>Inventario</h2>
-      <div id="wine-list"></div>
-    </section>
+          <div class="module-card" data-module="events">
+            <div>
+              <h3>📅 Eventos</h3>
+              <p id="events-summary">Próximo: —</p>
+            </div>
+            <div class="module-actions">
+              <button class="btn" onclick="openModule('events')">Abrir</button>
+              <button class="btn" onclick="openQuickAdd('events')">+ Evento</button>
+            </div>
+          </div>
 
-    <!-- Agregar vino -->
-    <section id="agregar" class="page">
-      <h2>Agregar Vino</h2>
-      <form id="add-wine-form">
-        <label>Nombre del vino</label>
-        <input type="text" id="wine-name" required />
+          <div class="module-card" data-module="cash">
+            <div>
+              <h3>💰 Cierres de Caja</h3>
+              <p id="cash-summary">Último cierre: —</p>
+            </div>
+            <div class="module-actions">
+              <button class="btn" onclick="openModule('cash')">Abrir</button>
+              <button class="btn" onclick="openQuickAdd('cash')">+ Cierre</button>
+            </div>
+          </div>
 
-        <label>Categoría</label>
-        <select id="wine-category">
-          <option value="tinto">Tinto</option>
-          <option value="blanco">Blanco</option>
-          <option value="espumoso">Espumoso o Dulce</option>
-        </select>
+          <div class="module-card" data-module="settings">
+            <div>
+              <h3>⚙️ Ajustes</h3>
+              <p>Usuarios, umbrales y conexión</p>
+            </div>
+            <div class="module-actions">
+              <button class="btn" onclick="openModule('settings')">Abrir</button>
+            </div>
+          </div>
+        </div>
 
-        <label>Cantidad</label>
-        <input type="number" min="0" id="wine-count" required />
+        <!-- Área de trabajo: aquí se renderiza el módulo seleccionado -->
+        <div id="workspace" style="margin-top:12px;background:rgba(255,255,255,0.01);border-radius:10px;padding:12px;min-height:240px;">
+          <div id="workspace-content" class="muted">Selecciona un módulo para ver su contenido.</div>
+        </div>
+      </section>
 
-        <button type="submit">Guardar</button>
-      </form>
-    </section>
+      <aside class="right-panel">
+        <div class="panel">
+          <h4 style="margin:0 0 8px 0">Actividad reciente</h4>
+          <div id="recent-activity" class="muted">No hay actividad</div>
+        </div>
 
-    <!-- Buscar -->
-    <section id="buscar" class="page">
-      <h2>Buscar</h2>
-      <input type="text" id="search-box" placeholder="Buscar vino..." />
-      <div id="search-results"></div>
-    </section>
+        <div class="panel">
+          <h4 style="margin:0 0 8px 0">Atajos rápidos</h4>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn" onclick="openQuickAdd('orders')">Nuevo Pedido</button>
+            <button class="btn" onclick="openQuickAdd('inventory')">Entrada Stock</button>
+            <button class="btn" onclick="openQuickAdd('staff')">Agregar Turno</button>
+            <button class="btn" onclick="openQuickAdd('events')">Crear Evento</button>
+          </div>
+        </div>
 
-    <!-- Ajustes -->
-    <section id="ajustes" class="page">
-      <h2>Ajustes</h2>
-      <p>Configuraciones futuras.</p>
-    </section>
-  </main>
+        <div class="panel">
+          <h4 style="margin:0 0 8px 0">Resumen caja</h4>
+          <div id="mini-cash" class="muted">Saldo: —</div>
+        </div>
+      </aside>
+    </main>
 
-  <script src="app.js"></script>
+    <nav class="dock" role="navigation" aria-label="Dock principal">
+      <button class="active" onclick="openModule('home')">Inicio</button>
+      <button onclick="openModule('inventory')">Inventario</button>
+      <button onclick="openModule('staff')">Personal</button>
+      <button onclick="openModule('cash')">Caja</button>
+      <button onclick="openModule('settings')">Más</button>
+    </nav>
+  </div>
+
+  <script>
+    // Mock data y funciones iniciales para demo local
+    const mock = {
+      inventory: [
+        {id:1,name:'Château Rouge 2018',stock:12,threshold:6},
+        {id:2,name:'Blanc de Loire 2020',stock:4,threshold:8},
+        {id:3,name:'Reserva 2015',stock:2,threshold:5},
+        {id:4,name:'Sparkling Rosé',stock:18,threshold:3}
+      ],
+      orders: [
+        {id:1001,supplier:'Distribuciones Vinícolas',status:'pendiente',total:320},
+        {id:1002,supplier:'Licores SL',status:'recibido',total:150}
+      ],
+      staff: [
+        {id:'s1',name:'Adri',shift:'10:00-18:00'},
+        {id:'s2',name:'Mariia',shift:'12:00-20:00'}
+      ],
+      events: [
+        {id:'e1',title:'Cata mensual',date:'2025-12-05'},
+        {id:'e2',title:'Cena maridaje',date:'2026-01-18'}
+      ],
+      cash: [
+        {date:'2025-11-19',total:850,closedBy:'Jonás'}
+      ]
+    };
+
+    function summarize(){
+      const low = mock.inventory.filter(i=>i.stock<=i.threshold).length;
+      document.getElementById('stat-inventory').textContent = `🍷 ${low} bajos`;
+      document.getElementById('inventory-summary').textContent = `Total: ${mock.inventory.length} — Botellas críticas: ${low}`;
+
+      const pend = mock.orders.filter(o=>o.status==='pendiente').length;
+      document.getElementById('orders-summary').textContent = `Pendientes: ${pend}`;
+
+      document.getElementById('staff-summary').textContent = `Turnos hoy: ${mock.staff.length}`;
+
+      const nextEvent = mock.events.length? mock.events[0].date : '—';
+      document.getElementById('events-summary').textContent = `Próximo: ${nextEvent}`;
+      document.getElementById('stat-event').textContent = `📅 Próx evento: ${nextEvent}`;
+
+      const lastCash = mock.cash.length? mock.cash[0].date : '—';
+      document.getElementById('cash-summary').textContent = `Último cierre: ${lastCash}`;
+      document.getElementById('mini-cash').textContent = `Saldo: ${mock.cash.length? '€'+mock.cash[0].total : '—'}`;
+
+      // recent activity
+      const recent = [];
+      recent.push(`${mock.orders.length} pedidos totales`);
+      recent.push(`${mock.inventory.length} vinos en inventario`);
+      document.getElementById('recent-activity').textContent = recent.join(' · ');
+    }
+
+    function openModule(module){
+      const ws = document.getElementById('workspace-content');
+      switch(module){
+        case 'home':
+          ws.innerHTML = '<div class="muted">Resumen y accesos rápidos. Selecciona un módulo.</div>';
+          break;
+        case 'inventory':
+          renderInventory();
+          break;
+        case 'orders':
+          renderOrders();
+          break;
+        case 'staff':
+          renderStaff();
+          break;
+        case 'events':
+          renderEvents();
+          break;
+        case 'cash':
+          renderCash();
+          break;
+        case 'settings':
+          ws.innerHTML = '<div class="muted">Ajustes: usuarios, permisos y configuraciones.</div>';
+          break;
+        default:
+          ws.innerHTML = '<div class="muted">Módulo no implementado.</div>';
+      }
+    }
+
+    function openQuickAdd(module){
+      const ws = document.getElementById('workspace-content');
+      switch(module){
+        case 'inventory':
+          ws.innerHTML = `<div><strong>Añadir entrada de stock</strong><p class="muted">(Demo)</p></div>`;
+          break;
+        case 'orders':
+          ws.innerHTML = `<div><strong>Crear nuevo pedido</strong><p class="muted">(Demo)</p></div>`;
+          break;
+        case 'staff':
+          ws.innerHTML = `<div><strong>Añadir turno al personal</strong><p class="muted">(Demo)</p></div>`;
+          break;
+        case 'events':
+          ws.innerHTML = `<div><strong>Crear evento</strong><p class="muted">(Demo)</p></div>`;
+          break;
+        case 'cash':
+          ws.innerHTML = `<div><strong>Registrar cierre de caja</strong><p class="muted">(Demo)</p></div>`;
+          break;
+        default:
+          ws.innerHTML = '<div class="muted">Acción rápida no disponible.</div>';
+      }
+    }
+
+    /* Render functions (simplified) */
+    function renderInventory(){
+      const ws = document.getElementById('workspace-content');
+      let html = `<h3>Inventario (${mock.inventory.length})</h3>`;
+      html += '<table><thead><tr><th>Vino</th><th>Stock</th><th>Umbral</th></tr></thead><tbody>';
+      mock.inventory.forEach(i=>{
+        html += `<tr><td>${i.name}</td><td>${i.stock}</td><td>${i.threshold}</td></tr>`;
+      });
+      html += '</tbody></table>';
+      ws.innerHTML = html;
+    }
+
+    function renderOrders(){
+      const ws = document.getElementById('workspace-content');
+      let html = `<h3>Pedidos</h3>`;
+      html += '<table><thead><tr><th>ID</th><th>Proveedor</th><th>Estado</th><th>Total</th></tr></thead><tbody>';
+      mock.orders.forEach(o=>{
+        html += `<tr><td>${o.id}</td><td>${o.supplier}</td><td>${o.status}</td><td>€${o.total}</td></tr>`;
+      });
+      html += '</tbody></table>';
+      ws.innerHTML = html;
+    }
+
+    function renderStaff(){
+      const ws = document.getElementById('workspace-content');
+      let html = `<h3>Personal</h3>`;
+      html += '<table><thead><tr><th>Nombre</th><th>Turno</th></tr></thead><tbody>';
+      mock.staff.forEach(s=>{
+        html += `<tr><td>${s.name}</td><td>${s.shift}</td></tr>`;
+      });
+      html += '</tbody></table>';
+      ws.innerHTML = html;
+    }
+
+    function renderEvents(){
+      const ws = document.getElementById('workspace-content');
+      let html = `<h3>Eventos</h3>`;
+      html += '<table><thead><tr><th>Evento</th><th>Fecha</th></tr></thead><tbody>';
+      mock.events.forEach(e=>{
+        html += `<tr><td>${e.title}</td><td>${e.date}</td></tr>`;
+      });
+      html += '</tbody></table>';
+      ws.innerHTML = html;
+    }
+
+    function renderCash(){
+      const ws = document.getElementById('workspace-content');
+      let html = `<h3>Cierres de caja</h3>`;
+      html += '<table><thead><tr><th>Fecha</th><th>Total</th><th>Responsable</th></tr></thead><tbody>';
+      mock.cash.forEach(c=>{
+        html += `<tr><td>${c.date}</td><td>€${c.total}</td><td>${c.closedBy}</td></tr>`;
+      });
+      html += '</tbody></table>';
+      ws.innerHTML = html;
+    }
+
+    // inicializar
+    summarize();
+    openModule('home');
+  </script>
 </body>
 </html>
