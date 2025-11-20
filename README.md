@@ -1,115 +1,93 @@
-Le Celier Manager
+# Le Celier Manager
 
-Gestor integral para restaurantes y bodegas, diseñado para centralizar las tareas esenciales de un establecimiento: inventario de vinos, pedidos, horarios del personal, eventos y cierres de caja.
+Gestor integral para restaurantes y bodegas, diseñado para centralizar todas las tareas esenciales: inventario de vinos, pedidos de bebidas y licores, gestión de personal, eventos y cierres de caja.
 
-Este proyecto es la base inicial del sistema, listo para escalar y conectarse a un backend real (por ejemplo, Firebase Firestore).
+Este proyecto está estructurado de manera modular para facilitar mantenimiento y escalabilidad.
 
-⸻
+---
 
-📌 Características principales
+## 📌 Módulos disponibles
 
-✔️ Inventario de vinos
-	•	Visualización del stock actual
-	•	Detección de productos en estado crítico
-	•	Preparado para extender con formulario de altas/bajas
+- **Inventario**: Visualización y control de stock de vinos.
+- **Pedidos**: Gestión de pedidos de proveedores.
+- **Personal**: Control de turnos y horarios del personal.
+- **Eventos**: Registro de próximos eventos y calendario.
+- **Caja**: Cierres diarios y registro de ingresos.
 
-✔️ Pedidos de proveedores
-	•	Lista de pedidos pendientes o completados
-	•	Estructura base para añadir nuevos pedidos
+---
 
-✔️ Gestión del personal
-	•	Vista de turnos del día
-	•	Estructura inicial para añadir/editar turnos
+## 📁 Estructura del proyecto
 
-✔️ Eventos y calendario
-	•	Próximos eventos (catas, reservas grandes, celebraciones)
-	•	Preparado para añadir calendario completo
-
-✔️ Cierres de caja
-	•	Registro de cierres diarios
-	•	Total recaudado por día
-
-✔️ Actividad reciente
-	•	Historial de acciones mostradas en la barra lateral
-
-⸻
-
-📁 Estructura del proyecto
-
-/
+```
+/project-root
   index.html
   styles.css
   app.js
   README.md
+  /modules
+    /inventario
+      inventario.html
+      inventario.css
+      inventario.js
+    /pedidos
+      pedidos.html
+      pedidos.css
+      pedidos.js
+    /personal
+      personal.html
+      personal.css
+      personal.js
+    /eventos
+      eventos.html
+      eventos.css
+      eventos.js
+    /caja
+      caja.html
+      caja.css
+      caja.js
+  /utils
+    storage.js
+    api.js
+    helpers.js
+```
 
-Más adelante se recomienda pasar a una estructura modular:
+---
 
-/public
-  index.html
-/src
-  /css
-    styles.css
-  /js
-    app.js
-    /modules
-      inventory.js
-      orders.js
-      staff.js
-      events.js
-      cash.js
-README.md
+## 🚀 Cómo usar
 
+1. Descarga o clona el repositorio.
+2. Abre `index.html` en tu navegador.
+3. Usa el dock inferior para navegar entre módulos.
+4. La sección de actividad reciente mostrará las acciones realizadas.
 
-⸻
+Todos los datos se almacenan en memoria o LocalStorage; al recargar la página se reinicia.
 
-🚀 Cómo usar
-	1.	Descarga o clona el repositorio.
-	2.	Simplemente abre index.html en tu navegador.
-	3.	Todos los datos son mock (almacenados en memoria) y se reinician con cada recarga.
+---
 
-No requiere servidor ni instalación adicional.
+## 🛠️ Tecnologías usadas
 
-⸻
+- **HTML5** para la estructura de cada módulo.
+- **CSS3** con variables y estilos modernos.
+- **JavaScript** para la carga dinámica y lógica de cada módulo.
+- Preparado para integrarse con **Firebase**, **Node.js** u otros backends.
 
-🛠️ Tecnologías usadas
-	•	HTML5 para la estructura principal
-	•	CSS3 (estilo bohemio/moderno inspirado en bodegas de vino)
-	•	JavaScript puro para manejar la interfaz y el estado local
-	•	Preparado para integrarse con Firebase, Node.js o Supabase si el proyecto escala
+---
 
-⸻
+## 🧩 Próximos pasos
 
-🧩 Próximos pasos recomendados
+- Separar módulos en componentes más pequeños si se escala.
+- Integrar backend real (Firestore, Supabase, Node.js).
+- Agregar autenticación y roles de usuario.
+- Mejorar interfaz y UX con animaciones y notificaciones.
+- Exportación de informes y estadísticas.
 
-🔹 Corto plazo
-	•	Separar módulos en distintos archivos JS
-	•	Agregar formularios reales (alta/modificación)
-	•	Añadir confirmaciones y diálogos
-	•	Mejorar el dock inferior con iconos SVG definitivos
-	•	Añadir modo offline con localStorage
+---
 
-🔹 Medio plazo
-	•	Autenticación de usuarios (Firebase Auth)
-	•	Base de datos en Firestore
-	•	Sistema de roles (gestor, camarero, cocina)
-	•	Exportación de informes en PDF/CSV
+## 📜 Licencia
 
-🔹 Largo plazo
-	•	Migración a React + Firebase
-	•	Progressive Web App (PWA)
-	•	Multiestablecimiento
-	•	Integración con TPV o PMS (si aplica)
+Proyecto bajo licencia **MIT**. Libre para usar, modificar y distribuir.
 
-⸻
+---
 
-📜 Licencia
-
-Este proyecto está bajo licencia MIT. Puedes usarlo, modificarlo y distribuirlo libremente.
-
-⸻
-
-👨‍🍳 Autor
-
-Proyecto desarrollado en colaboración entre Francisco Carballo y ChatGPT. Diseñado para uso real en restaurantes con un enfoque profesional, elegante y escalable.
-
-¡Salud y buenos vinos! 🍷
+## 👨‍🍳 Autor
+Proyecto desarrollado por **Francisco Carballo** y **ChatGPT**, con enfoque en gestión profesional de restaurantes y bodegas. 🍷
