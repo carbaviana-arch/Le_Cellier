@@ -1,172 +1,227 @@
-document.addEventListener("DOMContentLoaded", () => {
+// =============================================
+// Le Celier Manager - app.js (versión inicial)
+// =============================================
+// Esta base permite que el dashboard funcione en local
+// Más adelante conectaremos con Firestore o backend.
 
-  console.log("[app] DOMContentLoaded - iniciando app");
+console.log("Le Celier Manager iniciado.");
 
-  // ------------------------------------------------------
-  // LISTA DE VINOS
-  // ------------------------------------------------------
-  const vinos = {
-    tinto: [
-      "Luis Cañas","Sierra Cantabria","Voche","RODA","Ricardo Dumas",
-      "Pago de los Capellanes Joven","Silvanus","Viña Sastre Joven",
-      "Pago de Carraovejas","Tomás Postigo 5 Año","Abadía Retuerta",
-      "Summa Varietalis","Palacio Quemado","Habla del Silencio",
-      "Tagonius","El Regajal","Ánima del Priorat","Bobos",
-      "Corral de Campanas","Termes","Cuatro Pasos Black"
-    ],
-    blanco: [
-      "Emina Verdejo","El Perro Verde","Belondrade y Lurton",
-      "Pentecostes Albariño","Pazo Baión","Polvorete","A Coroa",
-      "O Luar do Sil","Belondrade Quinta Apolonia",
-      "Finca Río Negro Gewürztraminer","Barbazul","Árabe","Emina Rosé"
-    ],
-    espumoso: [
-      "Babot","Gramona Imperial","Tantum Ergo Rosé",
-      "Mumm Cordon Rouge Brut","Bollinger Special Cuvée",
-      "Jorge Ordóñez N°1"
-    ]
-  };
+// ------------------------------
+// Mock data temporal
+// ------------------------------
+const db = {
+  inventory: [
+    { id: "v1", name: "Chardonnay 2020", stock: 12, critical: false },
+    { id: "v2", name: "Tempranillo Reserva", stock: 3, critical: true },
+    { id: "v3", name: "Albariño", stock: 8, critical: false }
+  ],
 
-  // ------------------------------------------------------
-  // INVENTARIO
-  // ------------------------------------------------------
-  const inventario = [];
+  orders: [
+    { id: "o1", supplier: "Distrib. Rioja", status: "pendiente", total: 120 }
+  ],
 
-  // ------------------------------------------------------
-  // ELEMENTOS DOM
-  // ------------------------------------------------------
-  const buttons = document.querySelectorAll("nav button");
-  const pages = document.querySelectorAll(".page");
-  const wineList = document.getElementById("wine-list");
-  const addForm = document.getElementById("add-wine-form");
-  const searchInput = document.getElementById("search-box");
-  const searchResults = document.getElementById("search-results");
+  staff: [
+    { id: "s1", name: "Adri", shift: "10:00-18:00" },
+    { id: "s2", name: "Mariia", shift: "12:00-20:00" }
+  ],
 
-  console.log("[app] botones nav encontrados:", buttons.length);
-  console.log("[app] páginas encontradas:", pages.length);
-  console.log("[app] wineList existe?", !!wineList);
-  console.log("[app] addForm existe?", !!addForm);
-  console.log("[app] searchBox existe?", !!searchInput);
+  events: [
+    { id: "e1", title: "Cata privada", date: "2025-12-05" }
+  ],
 
-  // ------------------------------------------------------
-  // NAVEGACIÓN ENTRE SECCIONES
-  // ------------------------------------------------------
-  buttons.forEach(btn => {
-    btn.addEventListener("click", () => {
-      const page = btn.dataset.page;
-      pages.forEach(p => p.classList.remove("active"));
-      document.getElementById(page).classList.add("active");
-      console.log("[app] clic en nav ->", page);
-    });
+  cash: [
+    { id: "c1", date: "2025-11-18", total: 842 }
+  ],
+
+  activity: []
+};
+
+// ----------------------------------
+// Utilidades
+// ----------------------------------
+function logActivity(text) {
+  db.activity.unshift({ text, timestamp: new Date() });
+  renderActivity();
+}
+
+function formatDate(dateStr) {
+  return new Date(dateStr).toLocaleDateString("es-ES", {
+    year: "numeric",
+    month: "short",
+    day: "numeric"
   });
+}
 
-  // ------------------------------------------------------
-  // RENDER INVENTARIO
-  // ------------------------------------------------------
-  function renderInventario() {
-    wineList.innerHTML = "";
+// ----------------------------------
+// Navegación modular
+// ----------------------------------
+function openModule(moduleName) {
+  const container = document.getElementById("module-container");
+  container.innerHTML = "";
 
-    inventario.forEach((item, index) => {
-      const div = document.createElement("div");
-      div.classList.add("wine-item");
+  // Reset dock active
+  document.querySelectorAll(".dock button").forEach(b => b.classList.remove("active"));
+  const dockBtn = document.querySelector(`.dock button[onclick="openModule('${moduleName}')"]`);
+  if (dockBtn) dockBtn.classList.add("active");
 
-      div.innerHTML = `
-        <strong>${item.nombre}</strong> — ${item.categoria.toUpperCase()}<br>
-        <div class="qty-wrapper" data-id="${index}">
-          <button class="qty-btn minus">−</button>
-          <input type="number" class="qty-input" value="${item.cantidad}" min="0">
-          <button class="qty-btn plus">+</button>
-        </div>
-      `;
+  switch (moduleName) {
+    case "inventory":
+      container.innerHTML = renderInventory();
+      break;
+    case "orders":
+      container.innerHTML = renderOrders();
+      break;
+    case "staff":
+      container.innerHTML = renderStaff();
+      break;
+    case "events":
+      container.innerHTML = renderEvents();
+      break;
+    case "cash":
+      container.innerHTML = renderCash();
+      break;
+    default:
+      container.innerHTML = "";
+  }
+}
 
-      wineList.appendChild(div);
-    });
+// ----------------------------------
+// Render: Inventario
+// ----------------------------------
+function renderInventory() {
+  const rows = db.inventory
+    .map(v => `
+      <tr>
+        <td>${v.name}</td>
+        <td>${v.stock}</td>
+        <td>${v.critical ? "⚠️" : "✔️"}</td>
+      </tr>`)
+    .join("");
+
+  return `
+    <h2>Inventario de Vinos</h2>
+    <table>
+      <thead><tr><th>Nombre</th><th>Stock</th><th>Estado</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+}
+
+// ----------------------------------
+// Render: Pedidos
+// ----------------------------------
+function renderOrders() {
+  const rows = db.orders
+    .map(o => `
+      <tr>
+        <td>${o.supplier}</td>
+        <td>${o.status}</td>
+        <td>${o.total} €</td>
+      </tr>`)
+    .join("");
+
+  return `
+    <h2>Pedidos</h2>
+    <table>
+      <thead><tr><th>Proveedor</th><th>Estado</th><th>Total</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+}
+
+// ----------------------------------
+// Render: Personal
+// ----------------------------------
+function renderStaff() {
+  const rows = db.staff
+    .map(s => `
+      <tr>
+        <td>${s.name}</td>
+        <td>${s.shift}</td>
+      </tr>`)
+    .join("");
+
+  return `
+    <h2>Turnos del Personal</h2>
+    <table>
+      <thead><tr><th>Nombre</th><th>Turno</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+}
+
+// ----------------------------------
+// Render: Eventos
+// ----------------------------------
+function renderEvents() {
+  const rows = db.events
+    .map(ev => `
+      <tr>
+        <td>${ev.title}</td>
+        <td>${formatDate(ev.date)}</td>
+      </tr>`)
+    .join("");
+
+  return `
+    <h2>Eventos</h2>
+    <table>
+      <thead><tr><th>Evento</th><th>Fecha</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+}
+
+// ----------------------------------
+// Render: Cierres de Caja
+// ----------------------------------
+function renderCash() {
+  const rows = db.cash
+    .map(c => `
+      <tr>
+        <td>${formatDate(c.date)}</td>
+        <td>${c.total} €</td>
+      </tr>`)
+    .join("");
+
+  return `
+    <h2>Cierres de Caja</h2>
+    <table>
+      <thead><tr><th>Fecha</th><th>Total</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+}
+
+// ----------------------------------
+// Actividad reciente
+// ----------------------------------
+function renderActivity() {
+  const box = document.getElementById("activity-list");
+  if (!box) return;
+
+  if (db.activity.length === 0) {
+    box.innerHTML = "Sin actividad por ahora.";
+    return;
   }
 
-  // ------------------------------------------------------
-  // BOTONES + / −
-  // ------------------------------------------------------
-  wineList.addEventListener("click", (e) => {
-    if (e.target.classList.contains("plus") || e.target.classList.contains("minus")) {
-      const wrapper = e.target.closest(".qty-wrapper");
-      const input = wrapper.querySelector(".qty-input");
-      const index = wrapper.dataset.id;
-      let cantidad = parseInt(input.value) || 0;
+  box.innerHTML = db.activity
+    .map(a => `<div>• ${a.text} <span class='muted'>(${a.timestamp.toLocaleTimeString()})</span></div>`)
+    .join("");
+}
 
-      if (e.target.classList.contains("plus")) cantidad++;
-      else cantidad = Math.max(0, cantidad - 1);
+// Inicializar resúmenes rápidos
+function updateSummaries() {
+  document.getElementById("inventory-summary").textContent = `Total: ${db.inventory.length} · Críticos: ${db.inventory.filter(v=>v.critical).length}`;
+  document.getElementById("orders-summary").textContent = `Pendientes: ${db.orders.length}`;
+  document.getElementById("staff-summary").textContent = `Turnos hoy: ${db.staff.length}`;
+  document.getElementById("events-summary").textContent = db.events.length ? `Próx: ${db.events[0].title}` : "-";
+  document.getElementById("cash-summary").textContent = db.cash.length ? `Último: ${formatDate(db.cash[0].date)}` : "-";
+}
 
-      input.value = cantidad;
-      inventario[index].cantidad = cantidad;
-      guardarLocalStorage();
-    }
-  });
-
-  // ------------------------------------------------------
-  // EDICIÓN MANUAL
-  // ------------------------------------------------------
-  wineList.addEventListener("input", (e) => {
-    if (e.target.classList.contains("qty-input")) {
-      const wrapper = e.target.closest(".qty-wrapper");
-      const index = wrapper.dataset.id;
-      let cantidad = parseInt(e.target.value) || 0;
-      e.target.value = cantidad;
-      inventario[index].cantidad = cantidad;
-      guardarLocalStorage();
-    }
-  });
-
-  // ------------------------------------------------------
-  // AGREGAR VINO
-  // ------------------------------------------------------
-  addForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const nombre = document.getElementById("wine-name").value;
-    const categoria = document.getElementById("wine-category").value;
-    const cantidad = parseInt(document.getElementById("wine-count").value);
-
-    inventario.push({ nombre, categoria, cantidad });
-    renderInventario();
-    guardarLocalStorage();
-    addForm.reset();
-    alert("Vino agregado correctamente.");
-  });
-
-  // ------------------------------------------------------
-  // BÚSQUEDA
-  // ------------------------------------------------------
-  searchInput.addEventListener("input", () => {
-    const query = searchInput.value.toLowerCase();
-    const filtered = inventario.filter(v => v.nombre.toLowerCase().includes(query));
-
-    searchResults.innerHTML = filtered.length
-      ? filtered.map(v => `<div class="search-item">${v.nombre} — ${v.categoria}</div>`).join("")
-      : "<div class='search-item'>No hay resultados</div>";
-  });
-
-  // ------------------------------------------------------
-  // LOCAL STORAGE
-  // ------------------------------------------------------
-  function guardarLocalStorage() {
-    localStorage.setItem("inventario", JSON.stringify(inventario));
-  }
-
-  function cargarLocalStorage() {
-    const data = JSON.parse(localStorage.getItem("inventario"));
-    if (data && data.length > 0) {
-      data.forEach(v => inventario.push(v));
-    } else {
-      // Inicializar inventario desde la lista de vinos
-      Object.keys(vinos).forEach(cat => {
-        vinos[cat].forEach(nombre => {
-          inventario.push({ nombre, categoria: cat, cantidad: 0 });
-        });
-      });
-    }
-    renderInventario();
-    console.log("[app] inventario inicializado:", inventario.length, "items");
-  }
-
-  cargarLocalStorage();
-
+// ----------------------------------
+// Inicio
+// ----------------------------------
+window.addEventListener("DOMContentLoaded", () => {
+  updateSummaries();
+  renderActivity();
 });
